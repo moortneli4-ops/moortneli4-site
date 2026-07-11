@@ -97,6 +97,90 @@ main {
   color: var(--muted);
 }
 
+.demo-panel {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tab-btn {
+  border: 1px solid #4b5563;
+  background: #111827;
+  color: #dbeafe;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.tab-btn.is-active {
+  border-color: var(--accent);
+  background: rgba(56, 189, 248, 0.2);
+}
+
+.search-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #dbeafe;
+}
+
+.search-input {
+  width: 100%;
+  border: 1px solid #4b5563;
+  border-radius: 10px;
+  background: #111827;
+  color: var(--text);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.search-input:focus {
+  outline: 2px solid rgba(56, 189, 248, 0.45);
+  border-color: var(--accent);
+}
+
+.search-status {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.content-panel.is-hidden {
+  display: none;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-head h2 {
+  margin: 0;
+}
+
+.expand-btn {
+  border: 1px solid #4b5563;
+  background: #111827;
+  color: #dbeafe;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.card-detail {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #4b5563;
+}
+
 .link-grid {
   list-style: none;
   margin: 0;
@@ -104,6 +188,10 @@ main {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 10px;
+}
+
+.link-grid li.is-hidden {
+  display: none;
 }
 
 .link-grid a {
