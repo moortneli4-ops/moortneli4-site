@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-07-11",
+  "description": "Asset registry for moortneli4-site. Only processed assets should be referenced by pages.",
+  "entries": [
+    {
+      "id": "logo-main-dark-v1",
+      "path": "assets/images/logo/logo-main-dark-v1.svg",
+      "type": "image",
+      "format": "svg",
+      "usage": "brand",
+      "sizeKB": 0,
+      "owner": "sujun",
+      "updatedAt": "2026-07-11",
+      "status": "placeholder"
+    },
+    {
+      "id": "character-idle-loop-v1",
+      "path": "assets/media/characters/character-idle-loop-v1.webm",
+      "type": "video",
+      "format": "webm",
+      "usage": "character-idle",
+      "sizeKB": 0,
+      "owner": "sujun",
+      "updatedAt": "2026-07-11",
+      "status": "placeholder"
+    },
+    {
+      "id": "scene-links-transition-in-v1",
+      "path": "assets/media/transitions/scene-links-transition-in-v1.webm",
+      "type": "video",
+      "format": "webm",
+      "usage": "scene-transition",
+      "sizeKB": 0,
+      "owner": "sujun",
+      "updatedAt": "2026-07-11",
+      "status": "placeholder"
+    }
+  ]
+}
