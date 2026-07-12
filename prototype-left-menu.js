@@ -393,6 +393,7 @@ function syncCharacterLayout() {
     const bodyW = spriteCssWidth * scale;
     const bodyH = spriteCssWidth * spriteAspectH * scale;
     x += bodyW * (2 / 3);
+    x -= bodyW * (1 / 2); // 刚才右移过多，再左移回 1/2 身位
     y += bodyH * (1 / 8);
     scale *= 1.5;
     characterTuning.x = x;
