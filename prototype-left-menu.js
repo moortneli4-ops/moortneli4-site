@@ -686,7 +686,7 @@ function renderCardTextContent(index) {
       unlockForm.addEventListener("submit", (event) => {
         event.preventDefault();
         const passcode = passwordInput.value.trim();
-        if (passcode === "020406") {
+        if (passcode === "000000") {
           sceneCard.classList.remove("private-locked");
           activeDesc.innerHTML = `<p class="private-content-message">你来得太早了！</p>`;
           return;
