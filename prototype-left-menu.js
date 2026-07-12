@@ -553,7 +553,12 @@ function renderMenus() {
     li.appendChild(fallback);
     startTitleWobble(img, visibleIndex);
     li.dataset.index = String(visibleIndex);
-    li.addEventListener("click", () => {
+    li.addEventListener("click", (event) => {
+      if (suppressMenuItemClick) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
       playSfx(clickSfx);
       setTarget(visibleIndex);
     });
@@ -2029,6 +2034,72 @@ function onWheel(event) {
   startAnimation();
 }
 
+let menuTouchDrag = null;
+let suppressMenuItemClick = false;
+
+function isTitleSplashBlockingTouch() {
+  return Boolean(
+    titleSplash &&
+      !titleSplash.classList.contains("hidden") &&
+      titleSplash.style.display !== "none"
+  );
+}
+
+function shouldIgnoreMenuTouchTarget(target) {
+  if (!(target instanceof Element)) return false;
+  return Boolean(
+    target.closest(
+      "#card-text-scroll, #recharge-modal, #private-lock-panel, #chat-form, #chat-input, #character-stage, #cucumber-add-btn, #turntable-controls, #cover-hotspot, #big-cucumber-decor, #search-bar-decor, input, textarea, button, a, select, label"
+    )
+  );
+}
+
+function applyMenuDragDelta(pixelDeltaY) {
+  // 手指上滑 = 往下滚菜单（与滚轮方向一致）
+  const delta = (-pixelDeltaY) * 0.008;
+  const maxIndex = Math.max(0, visibleMenuIndices.length - 1);
+  const next = Math.max(0, Math.min(maxIndex, targetIndex + delta));
+  targetIndex = next;
+  startAnimation();
+}
+
+function onMenuTouchStart(event) {
+  if (rechargeModalOpen || isTitleSplashBlockingTouch()) return;
+  if (stageCurtainLayer && !stageIntroCompleted && !stageCurtainLayer.classList.contains("is-opened")) {
+    return;
+  }
+  if (event.pointerType === "mouse") return;
+  if (shouldIgnoreMenuTouchTarget(event.target)) return;
+  if (typeof event.isPrimary === "boolean" && !event.isPrimary) return;
+
+  menuTouchDrag = {
+    pointerId: event.pointerId,
+    lastY: event.clientY,
+    moved: false,
+  };
+}
+
+function onMenuTouchMove(event) {
+  if (!menuTouchDrag || menuTouchDrag.pointerId !== event.pointerId) return;
+  const dy = event.clientY - menuTouchDrag.lastY;
+  if (Math.abs(dy) < 0.5) return;
+  menuTouchDrag.lastY = event.clientY;
+  menuTouchDrag.moved = true;
+  event.preventDefault();
+  applyMenuDragDelta(dy);
+}
+
+function onMenuTouchEnd(event) {
+  if (!menuTouchDrag || menuTouchDrag.pointerId !== event.pointerId) return;
+  if (menuTouchDrag.moved) {
+    suppressMenuItemClick = true;
+    window.setTimeout(() => {
+      suppressMenuItemClick = false;
+    }, 350);
+  }
+  menuTouchDrag = null;
+}
+
 function onKeydown(event) {
   if (rechargeModalOpen) {
     if (event.key === "Escape") {
@@ -2057,6 +2128,10 @@ function onKeydown(event) {
 
 window.addEventListener("wheel", onWheel, { passive: false });
 window.addEventListener("keydown", onKeydown);
+window.addEventListener("pointerdown", onMenuTouchStart, { passive: true });
+window.addEventListener("pointermove", onMenuTouchMove, { passive: false });
+window.addEventListener("pointerup", onMenuTouchEnd, { passive: true });
+window.addEventListener("pointercancel", onMenuTouchEnd, { passive: true });
 window.addEventListener("resize", syncTonearmViewportPosition);
 window.addEventListener("resize", syncTopDecorHeight);
 window.addEventListener("resize", syncTitleAndCardLeftShift);
