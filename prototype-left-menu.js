@@ -1167,9 +1167,8 @@ function setTurntableHover(active) {
     turntableHitLayer.classList.toggle("hovered", active);
   }
   turntableControls.classList.toggle("visible", active);
-  // 有布局缩放时用 JS 保持 scale，避免 CSS .hovered 把尺寸打回 1
-  const layoutScale = Number(layoutLabExtras?.turntable?.scale) || 1;
-  if (layoutScale !== 1 || window.__LAYOUT_LAB__?.enabled) {
+  // 桌面默认布局交给 CSS .hovered；有缩放/位移配置时才用 JS 保 scale
+  if (!isTurntableCssHoverManaged()) {
     applyTurntableLayoutTuning(active);
   }
 }
@@ -1958,8 +1957,34 @@ function syncRechargeUiScale() {
   document.documentElement.style.setProperty("--recharge-ui-scale", String(scale));
 }
 
+function isTurntableCssHoverManaged() {
+  const t = layoutLabExtras?.turntable;
+  if (!t) return true;
+  // 电脑端默认唱片位：清内联样式，恢复 CSS 悬停右移 125px
+  return (
+    !window.__LAYOUT_LAB__?.enabled &&
+    !window.__LAYOUT_PROFILE_ACTIVE__ &&
+    Number(t.scale) === 1 &&
+    Number(t.left) === -540 &&
+    Number(t.topPercent) === 50
+  );
+}
+
 function applyTurntableLayoutTuning(hovered) {
   const t = layoutLabExtras.turntable;
+  if (isTurntableCssHoverManaged()) {
+    if (turntablePair) {
+      turntablePair.style.left = "";
+      turntablePair.style.top = "";
+      turntablePair.style.transform = "";
+    }
+    if (turntableHitLayer) {
+      turntableHitLayer.style.left = "";
+      turntableHitLayer.style.top = "";
+      turntableHitLayer.style.transform = "";
+    }
+    return;
+  }
   const isHovered =
     typeof hovered === "boolean"
       ? hovered
