@@ -4,113 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>莫特奈利斯 | 个人网站</title>
-  <meta name="description" content="莫特奈利斯个人网站，包含个人介绍、作品与常用工具导航。">
-  <link rel="stylesheet" href="./styles.css">
+  <meta name="description" content="莫特奈利斯个人网站入口页。">
+  <meta http-equiv="refresh" content="0; url=./prototype-left-menu.html">
+  <script>
+    (function () {
+      window.location.replace("./prototype-left-menu.html");
+    }());
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; padding: 24px; }
+    a { color: #389e6b; }
+  </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="container">
-      <p class="badge">Portfolio</p>
-      <h1>莫特奈利斯个人网站</h1>
-      <p class="subtitle">莫特奈利斯个人网站 · 首版已上线，内容持续更新中。</p>
-      <nav class="quick-links" aria-label="页面锚点">
-        <a href="#panel-controls">交互演示</a>
-        <a href="#about">个人介绍</a>
-        <a href="#links">常用网站合集</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
-    <section id="panel-controls" class="card card-wide demo-panel">
-      <h2>交互演示（简单案例）</h2>
-      <p class="section-note">Tab 切换、链接搜索、卡片展开 — 纯前端 JS，无需后端。</p>
-
-      <div class="tab-bar" role="tablist" aria-label="内容筛选">
-        <button class="tab-btn is-active" type="button" role="tab" aria-selected="true" data-tab="all">全部</button>
-        <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="overview">概览</button>
-        <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="links">常用链接</button>
-      </div>
-
-      <label class="search-label" for="link-search">搜索常用链接</label>
-      <input id="link-search" class="search-input" type="search" placeholder="输入关键词，例如：飞书 / AI / B站">
-      <p id="search-status" class="search-status">显示 20 / 20 条链接</p>
-    </section>
-    <section id="about" class="card content-panel" data-tab-group="overview">
-      <h2>个人介绍</h2>
-      <p>莫特奈利斯个人网站</p>
-    </section>
-
-    <section id="works" class="card content-panel expandable-card" data-tab-group="overview">
-      <div class="card-head">
-        <h2>个人作品</h2>
-        <button class="expand-btn" type="button" aria-expanded="false" aria-controls="works-detail">展开</button>
-      </div>
-      <p>这里将按时间展示项目作品、Demo 链接和说明。</p>
-      <div id="works-detail" class="card-detail" hidden>
-        <p>示例逻辑：点击“展开”只切换当前卡片状态，不影响其他区块。</p>
-      </div>
-    </section>
-
-    <section id="scores" class="card content-panel expandable-card" data-tab-group="overview">
-      <div class="card-head">
-        <h2>自制谱合集</h2>
-        <button class="expand-btn" type="button" aria-expanded="false" aria-controls="scores-detail">展开</button>
-      </div>
-      <p>这里将整理谱面目录，支持按主题检索与下载。</p>
-      <div id="scores-detail" class="card-detail" hidden>
-        <p>后续可在这里挂下载按钮，并链接到 GitHub Releases 或服务器文件目录。</p>
-      </div>
-    </section>
-
-    <section id="tools" class="card content-panel expandable-card" data-tab-group="overview">
-      <div class="card-head">
-        <h2>个人小工具</h2>
-        <button class="expand-btn" type="button" aria-expanded="false" aria-controls="tools-detail">展开</button>
-      </div>
-      <p>这里将放置日常自用工具入口与使用说明。</p>
-      <div id="tools-detail" class="card-detail" hidden>
-        <p>示例：可把“格式转换”“谱面工具”按标签分组展示。</p>
-      </div>
-    </section>
-
-    <section id="links" class="card card-wide content-panel" data-tab-group="links">
-      <h2>常用网站合集</h2>
-      <p class="section-note">导入自浏览器收藏夹（2026-07-11）</p>
-      <ul class="link-grid" id="link-grid">
-        <li data-keywords="樱花 动漫"><a href="https://www.yinghua3.com/" target="_blank" rel="noopener noreferrer">樱花动漫</a></li>
-        <li data-keywords="word pdf 转换"><a href="https://www.pdfkz.com/word-to-pdf" target="_blank" rel="noopener noreferrer">Word 转 PDF</a></li>
-        <li data-keywords="music xml 谱面"><a href="https://margrithm.girlsband.party/music-xml" target="_blank" rel="noopener noreferrer">Music.xml 创建</a></li>
-        <li data-keywords="umiguri 自制谱 登记"><a href="https://docs.qq.com/sheet/DZExZcEhNWkJ5ZkZz?tab=BB08J2" target="_blank" rel="noopener noreferrer">UMIGURI 自制谱 ID 登记</a></li>
-        <li data-keywords="cuefile 谱面"><a href="https://margrithm.girlsband.party/acb-create" target="_blank" rel="noopener noreferrer">cueFile 创建</a></li>
-        <li data-keywords="即梦 ai 视频"><a href="https://jimeng.jianying.com/ai-tool/home" target="_blank" rel="noopener noreferrer">即梦 AI</a></li>
-        <li data-keywords="b站 bilibili 下载 解析"><a href="https://snapany.com/zh/bilibili" target="_blank" rel="noopener noreferrer">B 站视频解析下载</a></li>
-        <li data-keywords="canvas 交大 课程"><a href="https://oc.sjtu.edu.cn/login/canvas" target="_blank" rel="noopener noreferrer">Canvas 登录</a></li>
-        <li data-keywords="kimi ai 对话"><a href="https://www.kimi.com/" target="_blank" rel="noopener noreferrer">Kimi AI</a></li>
-        <li data-keywords="学习 工程 ignoredone"><a href="https://www.ignoredone.space/index.php/learningproject/" target="_blank" rel="noopener noreferrer">学习工程</a></li>
-        <li data-keywords="豆包 ai 字节"><a href="https://www.doubao.com/chat/" target="_blank" rel="noopener noreferrer">豆包</a></li>
-        <li data-keywords="tapnow 视频 ai"><a href="https://app.tapnow.ai/home" target="_blank" rel="noopener noreferrer">TapNow</a></li>
-        <li data-keywords="献丑 视频 ai"><a href="https://xianchou.com/" target="_blank" rel="noopener noreferrer">献丑</a></li>
-        <li data-keywords="happy horses 视频 ai"><a href="https://happyhorses.io/" target="_blank" rel="noopener noreferrer">Happy Horses</a></li>
-        <li data-keywords="comfyui 飞书 文档"><a href="https://my.feishu.cn/wiki/W4GcwkuGQiuBuTkW85EcI94tnYd" target="_blank" rel="noopener noreferrer">ComfyUI 飞书文档</a></li>
-        <li data-keywords="软件 资源库 飞书"><a href="https://my.feishu.cn/base/IkgobGhHXajzL0sYQH8c6kIVn3f" target="_blank" rel="noopener noreferrer">软件资源库</a></li>
-        <li data-keywords="哔哩哔哩 bilibili b站"><a href="https://www.bilibili.com/" target="_blank" rel="noopener noreferrer">哔哩哔哩</a></li>
-        <li data-keywords="飞书 消息"><a href="https://ecnzc43qeip9.feishu.cn/next/messenger" target="_blank" rel="noopener noreferrer">飞书消息</a></li>
-        <li data-keywords="llm gateway 模型 api"><a href="http://www.llmgateway.cn/dashboard" target="_blank" rel="noopener noreferrer">LLM Gateway</a></li>
-        <li data-keywords="ai 模型 milora api"><a href="https://api.milorapart.top/ai-models" target="_blank" rel="noopener noreferrer">AI 模型市场</a></li>
-      </ul>
-    </section>
-
-    <section id="vault" class="card content-panel" data-tab-group="overview">
-      <h2>神秘信息（预留）</h2>
-      <p>当前为占位区。后续将升级为更安全的访问控制方案。</p>
-    </section>
-  </main>
-
-  <footer class="container footer">
-    <p>© <span id="year"></span> Moortneli4. Built for GitHub Pages.</p>
-  </footer>
-
-  <script src="./script.js"></script>
+  <p>正在进入网站首页… 若未自动跳转，请点击 <a href="./prototype-left-menu.html">这里</a>。</p>
 </body>
 </html>
