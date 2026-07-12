@@ -373,17 +373,32 @@ function syncCharacterLayout() {
     xRatio = 0.705;
     yRatio = 0.545;
     scale *= 0.9;
+    characterTuning.x = w * xRatio;
+    characterTuning.y = h * yRatio;
+    characterTuning.scale = scale;
   } else if (document.documentElement.classList.contains("phone-stage")) {
     xRatio = 0.78;
     yRatio = 0.58;
     scale = Math.max(0.26, Math.min(0.55, scale * 1.05));
+    characterTuning.x = w * xRatio;
+    characterTuning.y = h * yRatio;
+    characterTuning.scale = scale;
   } else {
+    // 桌面：先按基准定位，再右移约 2/3 身位、下移约 1/8 身位，最后放大到 3/2
     scale = Math.max(0.45, Math.min(base.scale, scale));
+    let x = w * xRatio;
+    let y = h * yRatio;
+    const spriteCssWidth = 760;
+    const spriteAspectH = 1728 / 2304;
+    const bodyW = spriteCssWidth * scale;
+    const bodyH = spriteCssWidth * spriteAspectH * scale;
+    x += bodyW * (2 / 3);
+    y += bodyH * (1 / 8);
+    scale *= 1.5;
+    characterTuning.x = x;
+    characterTuning.y = y;
+    characterTuning.scale = scale;
   }
-
-  characterTuning.x = w * xRatio;
-  characterTuning.y = h * yRatio;
-  characterTuning.scale = scale;
   applyCharacterTransform();
 }
 const characterPairStemOverrides = {
