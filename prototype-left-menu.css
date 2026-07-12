@@ -26,6 +26,101 @@ label {
   touch-action: manipulation;
 }
 
+.stage-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 手机竖屏：整页按横屏排布（旋转舞台，不依赖系统横屏锁） */
+html.force-landscape,
+html.force-landscape body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+html.force-landscape .stage-root {
+  position: fixed;
+  width: 100dvh;
+  height: 100dvw;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center center;
+  overflow: hidden;
+}
+
+html.force-landscape .bg-video,
+html.force-landscape .stage-overlay,
+html.force-landscape .stage-curtain-layer,
+html.force-landscape .unlock-cucumber-layer,
+html.force-landscape .unlock-whiteout,
+html.force-landscape .title-splash,
+html.force-landscape .recharge-modal,
+html.force-landscape .app {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  inset: 0;
+}
+
+html.force-landscape .left-panel,
+html.force-landscape .menu-list {
+  height: 100% !important;
+}
+
+html.force-landscape .stage-lights-layer {
+  width: 56% !important;
+  height: 100% !important;
+}
+
+html.force-landscape .stage-light {
+  width: 26% !important;
+  height: 125% !important;
+}
+
+/* 手机横屏舞台（含强制横屏）：压矮高度下的关键尺寸
+   调试台 html.layout-lab-mode 会覆盖这些夹紧，避免手调撞墙 */
+html.phone-stage:not(.layout-lab-mode) .character-sprite {
+  width: min(760px, 46vw);
+}
+
+html.phone-stage:not(.layout-lab-mode) .left-panel {
+  left: 24px;
+  width: clamp(220px, 30vw, 420px);
+}
+
+html.phone-stage:not(.layout-lab-mode) .menu-item {
+  width: min(420px, 48vw);
+  font-size: clamp(28px, 5.2vh, 48px);
+}
+
+html.phone-stage:not(.layout-lab-mode) .menu-title-image {
+  max-height: clamp(36px, 9vh, 64px);
+}
+
+html.phone-stage:not(.layout-lab-mode) .center-panel {
+  width: min(620px, 54vw);
+}
+
+html.phone-stage:not(.layout-lab-mode) .cucumber-currency-widget {
+  transform: scale(0.82);
+  transform-origin: top right;
+}
+
+html.phone-stage:not(.layout-lab-mode) .turntable-pair,
+html.phone-stage:not(.layout-lab-mode) .tonearm {
+  transform-origin: left center;
+}
+
+/* iPad / 平板：人物略左下、略缩小，避免压到卡牌 */
+html.tablet-stage .character-sprite {
+  width: min(700px, 42vw);
+}
+
 .bg-video {
   position: fixed;
   inset: 0;
@@ -310,10 +405,12 @@ label {
 
 .recharge-panel {
   position: relative;
-  width: min(1024px, 90vw);
-  max-width: 1024px;
+  /* 设计稿 1024×768；用 --recharge-ui-scale 按舞台高度整体缩小，百分比热区同步缩小 */
+  width: calc(1024px * var(--recharge-ui-scale, 1));
+  max-width: min(90vw, calc(1024px * var(--recharge-ui-scale, 1)));
   aspect-ratio: 1024 / 768;
   user-select: none;
+  transform-origin: center center;
 }
 
 .recharge-image {
@@ -343,7 +440,7 @@ label {
   bottom: 11%;
   transform: translateX(-50%);
   margin: 0;
-  font-size: clamp(36px, 4vw, 52px);
+  font-size: calc(44px * var(--recharge-ui-scale, 1));
   font-weight: 900;
   line-height: 1;
   color: #ff2d2d;
@@ -949,7 +1046,7 @@ label {
 
 .menu-title-image {
   display: block;
-  height: 98px;
+  height: calc(98px * var(--menu-title-scale, 1));
   width: auto;
   max-width: none;
   transform-origin: center center;
@@ -1087,8 +1184,8 @@ label {
 }
 
 .active-name {
-  margin: 18px 0 10px;
-  font-size: 52px;
+  margin: calc(18px * var(--card-content-scale, 1)) 0 calc(10px * var(--card-content-scale, 1));
+  font-size: calc(52px * var(--card-content-scale, 1));
   line-height: 1.08;
   white-space: pre-line;
   color: #ffffff;
@@ -1109,16 +1206,52 @@ label {
 
 .scene-desc {
   margin: 0;
-  font-size: 24px;
+  font-size: calc(24px * var(--card-content-scale, 1));
   line-height: 1.48;
   white-space: pre-wrap;
   color: #ffffff;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
 }
 
+.welcome-desc-text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.welcome-refresh-wrap {
+  margin-top: calc(22px * var(--card-content-scale, 1));
+  display: grid;
+  justify-items: center;
+  gap: calc(8px * var(--card-content-scale, 1));
+}
+
+.welcome-refresh-btn {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(12, 18, 16, 0.72);
+  color: #fff;
+  font-size: calc(20px * var(--card-content-scale, 1));
+  font-weight: 700;
+  line-height: 1;
+  padding: calc(10px * var(--card-content-scale, 1)) calc(28px * var(--card-content-scale, 1));
+  cursor: pointer;
+}
+
+.welcome-refresh-btn:hover {
+  background: rgba(30, 48, 40, 0.88);
+}
+
+.welcome-refresh-tip {
+  margin: 0;
+  font-size: calc(16px * var(--card-content-scale, 1));
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
 .score-list-text {
   margin: 0;
-  font: 600 20px/1.45 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font: 600 calc(20px * var(--card-content-scale, 1)) / 1.45 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   white-space: pre-wrap;
 }
 
@@ -1133,7 +1266,7 @@ label {
   display: inline-block;
   color: #b9fff3;
   text-decoration: none;
-  font-size: 34px;
+  font-size: calc(34px * var(--card-content-scale, 1));
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: 0.6px;
@@ -1185,7 +1318,7 @@ label {
   border-radius: 10px;
   background: rgba(20, 20, 20, 0.72);
   color: #fff;
-  font-size: 20px;
+  font-size: calc(20px * var(--card-content-scale, 1));
   line-height: 1.2;
   padding: 10px 12px;
   outline: none;
@@ -1195,7 +1328,7 @@ label {
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 999px;
   padding: 8px 22px;
-  font-size: 20px;
+  font-size: calc(20px * var(--card-content-scale, 1));
   font-weight: 700;
   background: rgba(18, 18, 18, 0.76);
   color: #fff;
@@ -1205,20 +1338,20 @@ label {
 .private-unlock-hint {
   min-height: 1.3em;
   margin: 0;
-  font-size: 19px;
+  font-size: calc(19px * var(--card-content-scale, 1));
   color: #ffd0d0;
 }
 
 .private-content-message {
   margin: 6px 0 0;
-  font-size: 30px;
+  font-size: calc(30px * var(--card-content-scale, 1));
   font-weight: 700;
   line-height: 1.35;
 }
 
 .about-line {
   margin: 0 0 10px;
-  font-size: 27px;
+  font-size: calc(27px * var(--card-content-scale, 1));
   line-height: 1.35;
 }
 
@@ -1236,31 +1369,33 @@ label {
 
 .chat-panel {
   display: grid;
-  grid-template-rows: minmax(220px, 1fr) auto;
-  gap: 12px;
+  grid-template-rows: minmax(calc(160px * var(--card-content-scale, 1)), 1fr) auto;
+  gap: calc(12px * var(--card-content-scale, 1));
   width: 100%;
-  min-height: 420px;
-  padding: 8px 2px 0;
+  min-height: calc(420px * var(--card-content-scale, 1));
+  max-height: 100%;
+  padding: calc(8px * var(--card-content-scale, 1)) 2px 0;
+  box-sizing: border-box;
 }
 
 .chat-thread {
   width: 100%;
-  max-height: 430px;
+  max-height: calc(430px * var(--card-content-scale, 1));
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 8px 6px 4px;
-  border-radius: 14px;
+  gap: calc(10px * var(--card-content-scale, 1));
+  padding: calc(8px * var(--card-content-scale, 1)) calc(6px * var(--card-content-scale, 1)) 4px;
+  border-radius: calc(14px * var(--card-content-scale, 1));
   background: linear-gradient(180deg, rgba(16, 70, 46, 0.34), rgba(8, 36, 25, 0.44));
   border: 1px solid rgba(142, 255, 205, 0.32);
 }
 
 .chat-bubble {
   max-width: 78%;
-  padding: 10px 14px;
-  border-radius: 14px;
-  font-size: 21px;
+  padding: calc(10px * var(--card-content-scale, 1)) calc(14px * var(--card-content-scale, 1));
+  border-radius: calc(14px * var(--card-content-scale, 1));
+  font-size: calc(21px * var(--card-content-scale, 1));
   line-height: 1.4;
   word-break: break-word;
 }
@@ -1282,27 +1417,27 @@ label {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 10px;
+  gap: calc(10px * var(--card-content-scale, 1));
 }
 
 .chat-input {
   border: 1px solid rgba(145, 255, 206, 0.58);
-  border-radius: 12px;
+  border-radius: calc(12px * var(--card-content-scale, 1));
   background: rgba(8, 34, 22, 0.8);
   color: #d9ffeb;
-  font-size: 21px;
-  padding: 10px 12px;
+  font-size: calc(21px * var(--card-content-scale, 1));
+  padding: calc(10px * var(--card-content-scale, 1)) calc(12px * var(--card-content-scale, 1));
   outline: none;
 }
 
 .chat-send-btn {
   border: 1px solid rgba(145, 255, 206, 0.65);
-  border-radius: 12px;
+  border-radius: calc(12px * var(--card-content-scale, 1));
   background: linear-gradient(135deg, rgba(50, 171, 108, 0.92), rgba(30, 127, 79, 0.92));
   color: #effff5;
-  font-size: 20px;
+  font-size: calc(20px * var(--card-content-scale, 1));
   font-weight: 700;
-  padding: 9px 16px;
+  padding: calc(9px * var(--card-content-scale, 1)) calc(16px * var(--card-content-scale, 1));
   cursor: pointer;
 }
 

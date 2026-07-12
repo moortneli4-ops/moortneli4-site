@@ -23,6 +23,7 @@ const unlockCucumberLayer = document.getElementById("unlock-cucumber-layer");
 const unlockWhiteout = document.getElementById("unlock-whiteout");
 const characterStage = document.getElementById("character-stage");
 const characterSprite = document.getElementById("character-sprite");
+const stageRoot = document.getElementById("stage-root");
 const bigCucumberDecor = document.getElementById("big-cucumber-decor");
 const searchBarDecor = document.getElementById("search-bar-decor");
 const cucumberCurrencyWidget = document.getElementById("cucumber-currency-widget");
@@ -89,9 +90,11 @@ let targetIndex = 0;
 let rafId = null;
 const itemSpacing = 144;
 const vinylRadius = 480; // 唱片半径（960/2）
-const menuTrackRadius = 450; // 文字轨迹半径继续增大（同圆心规则不变）
-const menuAngleStep = 0.48; // 相邻菜单角度步进（弧度）- 拉大上下间隔
+const MENU_RADIUS_BASE = 450; // 默认文字轨迹半径
+const MENU_TITLE_HEIGHT_BASE = 98; // 默认标题图高度
+const MENU_ANGLE_STEP_BASE = 0.48; // 相邻菜单角度步进（弧度）
 const maxMenuAngle = 1.34; // 可见弧段角度上限（更远才消失）
+const CARD_TEXT_BASE_WIDTH = 558; // 卡牌正文设计宽度（用于文字随载体缩放）
 const items = [];
 let selectedIndex = 0;
 let sceneToken = 0;
@@ -189,6 +192,200 @@ const characterTuning = {
   y: 566,
   scale: 0.86,
 };
+const characterLayoutBase = {
+  width: 1920,
+  height: 1080,
+  x: 1386,
+  y: 566,
+  scale: 0.86,
+};
+
+function getStageSize() {
+  if (window.__LAYOUT_LAB__?.enabled) {
+    return {
+      width: Math.max(1, Number(window.__LAYOUT_LAB__.stageWidth) || 1024),
+      height: Math.max(1, Number(window.__LAYOUT_LAB__.stageHeight) || 768),
+    };
+  }
+  if (document.documentElement.classList.contains("force-landscape")) {
+    return {
+      width: Math.max(1, window.innerHeight),
+      height: Math.max(1, window.innerWidth),
+    };
+  }
+  return {
+    width: Math.max(1, window.innerWidth),
+    height: Math.max(1, window.innerHeight),
+  };
+}
+
+function viewportToStagePoint(clientX, clientY) {
+  if (!document.documentElement.classList.contains("force-landscape")) {
+    return { x: clientX, y: clientY };
+  }
+  const stage = getStageSize();
+  const cx = window.innerWidth * 0.5;
+  const cy = window.innerHeight * 0.5;
+  const dx = clientX - cx;
+  const dy = clientY - cy;
+  // 舞台被 rotate(90deg)，屏幕坐标逆变换回舞台坐标
+  return {
+    x: stage.width * 0.5 + dy,
+    y: stage.height * 0.5 - dx,
+  };
+}
+
+function syncViewportMode() {
+  const lab = window.__LAYOUT_LAB__;
+  if (lab?.enabled) {
+    const preset = lab.preset === "phone" ? "phone" : "ipad";
+    document.documentElement.classList.add("layout-lab-mode");
+    document.documentElement.classList.toggle("phone-stage", preset === "phone");
+    document.documentElement.classList.toggle("tablet-stage", preset === "ipad");
+    document.documentElement.classList.remove("force-landscape");
+    if (!lab.lockAutoCharacter) {
+      syncCharacterLayout();
+    }
+    syncRechargeUiScale();
+    return;
+  }
+
+  document.documentElement.classList.remove("layout-lab-mode");
+  applyResponsiveLayoutProfile(false);
+}
+
+let layoutProfilesCache = null;
+let activeLayoutPreset = null;
+let layoutProfilesLoadPromise = null;
+
+function detectLayoutPreset() {
+  if (window.__LAYOUT_LAB__?.enabled) {
+    return window.__LAYOUT_LAB__.preset === "phone" ? "phone" : "ipad";
+  }
+  const shortSide = Math.min(window.innerWidth, window.innerHeight);
+  if (shortSide <= 540) return "phone";
+  if (shortSide <= 900) return "ipad";
+  return "desktop";
+}
+
+function loadLayoutProfiles() {
+  if (layoutProfilesCache) return Promise.resolve(layoutProfilesCache);
+  if (layoutProfilesLoadPromise) return layoutProfilesLoadPromise;
+  layoutProfilesLoadPromise = fetch("./layout-profiles.json", { cache: "no-cache" })
+    .then((response) => (response.ok ? response.json() : null))
+    .then((data) => {
+      layoutProfilesCache = data;
+      return data;
+    })
+    .catch(() => {
+      layoutProfilesCache = null;
+      return null;
+    });
+  return layoutProfilesLoadPromise;
+}
+
+function resetDesktopLayoutDefaults() {
+  Object.assign(bigCucumberTuning, { xPercent: -203.7, yPercent: -107, scale: 3 });
+  Object.assign(turntableControlsTuning, { x: 112, y: -110 });
+  Object.assign(tonearmState, { x: 120, scale: 0.48, angle: 5 });
+  Object.assign(layoutLabExtras.turntable, { left: -540, topPercent: 50, scale: 1 });
+  Object.assign(layoutLabExtras.centerPanel, { leftPercent: 54, topPercent: 51.5, widthPx: 0 });
+  Object.assign(layoutLabExtras.leftPanel, { left: 68, widthPx: 0 });
+  Object.assign(layoutLabExtras.currencyWidget, { right: 6, top: 0, scale: 0.75 });
+  Object.assign(layoutLabExtras.searchBar, { xPercent: -33.333, scale: 1 });
+  Object.assign(layoutLabExtras.menuArc, {
+    radius: MENU_RADIUS_BASE,
+    titleScale: 1,
+    angleStep: MENU_ANGLE_STEP_BASE,
+  });
+
+  applyBigCucumberTransform();
+  applyTurntableControlsTuning();
+  applyTurntableLayoutTuning(false);
+  applyCenterPanelLayoutTuning();
+  applyLeftPanelLayoutTuning();
+  applyCurrencyWidgetLayoutTuning();
+  applySearchBarLayoutTuning();
+  applyMenuArcLayoutTuning();
+  // 桌面人物/唱臂 y 交给自动布局
+  window.__LAYOUT_PROFILE_ACTIVE__ = false;
+  syncCharacterLayout();
+  tonearmState.y = Math.round(getStageSize().height * 0.82);
+  renderTonearm();
+}
+
+function applyResponsiveLayoutProfile(force) {
+  if (window.__LAYOUT_LAB__?.enabled) return;
+
+  const preset = detectLayoutPreset();
+  const isPortrait = window.innerHeight > window.innerWidth;
+  document.documentElement.classList.toggle("phone-stage", preset === "phone");
+  document.documentElement.classList.toggle("tablet-stage", preset === "ipad");
+  document.documentElement.classList.toggle(
+    "force-landscape",
+    preset === "phone" && isPortrait
+  );
+
+  if (!force && preset === activeLayoutPreset) {
+    syncRechargeUiScale();
+    return;
+  }
+
+  // 配置尚未加载时先只切 class，等 fetch 完成后再套参数
+  if (!layoutProfilesCache && preset !== "desktop") {
+    activeLayoutPreset = null;
+    syncCharacterLayout();
+    syncRechargeUiScale();
+    return;
+  }
+
+  activeLayoutPreset = preset;
+
+  const params = layoutProfilesCache?.presets?.[preset]?.params;
+  if (preset === "desktop" || !params) {
+    resetDesktopLayoutDefaults();
+  } else {
+    window.__LAYOUT_PROFILE_ACTIVE__ = true;
+    applyLayoutLabParams(params);
+    applyMenuArcLayoutTuning();
+    applyTurntableLayoutTuning(false);
+    applyCardContentScale();
+  }
+  syncRechargeUiScale();
+  syncTitleAndCardLeftShift();
+  syncTopDecorHeight();
+}
+
+function syncCharacterLayout() {
+  if (window.__LAYOUT_LAB__?.lockAutoCharacter || window.__LAYOUT_PROFILE_ACTIVE__) {
+    applyCharacterTransform();
+    return;
+  }
+  const { width: w, height: h } = getStageSize();
+  const base = characterLayoutBase;
+  const fit = Math.min(w / base.width, h / base.height);
+  let xRatio = base.x / base.width;
+  let yRatio = base.y / base.height;
+  let scale = base.scale * fit;
+
+  if (document.documentElement.classList.contains("tablet-stage")) {
+    // iPad：人物略向左下收一点，避免贴边/压卡
+    xRatio = 0.705;
+    yRatio = 0.545;
+    scale *= 0.9;
+  } else if (document.documentElement.classList.contains("phone-stage")) {
+    xRatio = 0.78;
+    yRatio = 0.58;
+    scale = Math.max(0.26, Math.min(0.55, scale * 1.05));
+  } else {
+    scale = Math.max(0.45, Math.min(base.scale, scale));
+  }
+
+  characterTuning.x = w * xRatio;
+  characterTuning.y = h * yRatio;
+  characterTuning.scale = scale;
+  applyCharacterTransform();
+}
 const characterPairStemOverrides = {
   与睦头尬聊: ["与睦头尬聊", "睦头尬聊", "尬聊"],
 };
@@ -407,7 +604,25 @@ function renderCardTextContent(index) {
       cardTextScroll.classList.add("welcome-layout");
     }
     activeName.textContent = "莫特奈利斯\n个人网站";
-    activeDesc.textContent = menuDescriptions[index] || "";
+    activeDesc.innerHTML = `
+      <p class="welcome-desc-text">${escapeHtml(menuDescriptions[index] || "")}</p>
+      <div class="welcome-refresh-wrap">
+        <button type="button" id="welcome-refresh-btn" class="welcome-refresh-btn">刷新</button>
+        <p class="welcome-refresh-tip">显示问题请点我</p>
+      </div>
+    `;
+    const refreshBtn = document.getElementById("welcome-refresh-btn");
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        playSfx(clickSfx);
+        window.location.reload();
+      });
+      refreshBtn.addEventListener("pointerdown", (event) => {
+        event.stopPropagation();
+      });
+    }
     return;
   }
   if (label === "自制谱面") {
@@ -565,6 +780,7 @@ function renderMenus() {
     menuList.appendChild(li);
     items.push(li);
   });
+  applyMenuArcLayoutTuning();
   renderPositions();
 }
 
@@ -626,6 +842,9 @@ function setBaseCardScale(nextScale) {
 
 function renderPositions() {
   const centerX = getMenuCircleCenterX();
+  const arc = layoutLabExtras.menuArc;
+  const trackRadius = arc?.radius ?? MENU_RADIUS_BASE;
+  const angleStep = arc?.angleStep ?? MENU_ANGLE_STEP_BASE;
   let activeVisualIndex = Math.round(currentIndex);
   activeVisualIndex = Math.max(0, Math.min(visibleMenuIndices.length - 1, activeVisualIndex));
   if (activeVisualIndex !== selectedIndex) {
@@ -637,10 +856,10 @@ function renderPositions() {
 
   items.forEach((item, index) => {
     const offset = index - currentIndex;
-    const rawTheta = offset * menuAngleStep;
+    const rawTheta = offset * angleStep;
     const theta = Math.max(-maxMenuAngle, Math.min(maxMenuAngle, rawTheta));
-    const x = centerX + menuTrackRadius * Math.cos(theta) - titleAndCardLeftShiftPx;
-    const y = menuTrackRadius * Math.sin(theta);
+    const x = centerX + trackRadius * Math.cos(theta) - titleAndCardLeftShiftPx;
+    const y = trackRadius * Math.sin(theta);
     const normalized = Math.min(1.25, Math.abs(rawTheta / maxMenuAngle));
     const absNorm = normalized;
     const centerBoost = Math.exp(-Math.pow(y / 82, 2)); // 收窄高亮带，中心放大更集中
@@ -673,11 +892,12 @@ function refreshVisibleMenusAndSelection(preferredLabel) {
 
 function syncTitleAndCardLeftShift() {
   if (!sceneCard) return;
-  const cardWidth = sceneCard.getBoundingClientRect().width;
+  const cardWidth = sceneCard.offsetWidth || sceneCard.getBoundingClientRect().width;
   if (cardWidth <= 0) return;
   titleAndCardLeftShiftPx = cardWidth / 6;
   applyCardTransform();
   renderPositions();
+  applyCardContentScale();
 }
 
 function trackMenuCenterByRaf() {
@@ -866,13 +1086,15 @@ async function switchToNextSong() {
   await fadeAudioTo(0, 420);
   bgAudio.pause();
 
+  // 换碟动画必须乘上当前布局缩放，否则手机/iPad 会瞬间回到原始大尺寸
+  const layoutScale = Number(layoutLabExtras?.turntable?.scale) || 1;
   const outKeyframes = [
-    { transform: "translate(0px, -50%) scale(1)", opacity: 1 },
-    { transform: "translate(-220px, -50%) scale(0.96)", opacity: 0 }
+    { transform: `translate(0px, -50%) scale(${layoutScale})`, opacity: 1 },
+    { transform: `translate(-220px, -50%) scale(${layoutScale * 0.96})`, opacity: 0 }
   ];
   const inKeyframes = [
-    { transform: "translate(0px, -50%) scale(0.5)", opacity: 0 },
-    { transform: "translate(0px, -50%) scale(1)", opacity: 1 }
+    { transform: `translate(0px, -50%) scale(${layoutScale * 0.5})`, opacity: 0 },
+    { transform: `translate(0px, -50%) scale(${layoutScale})`, opacity: 1 }
   ];
 
   const outAnim = turntablePair.animate(
@@ -911,12 +1133,12 @@ async function switchToNextSong() {
   ]);
   inAnim.cancel();
   if (inHitAnim) inHitAnim.cancel();
-  turntablePair.style.transform = "";
   turntablePair.style.opacity = "";
   if (turntableHitLayer) {
-    turntableHitLayer.style.transform = "";
     turntableHitLayer.style.opacity = "";
   }
+  // 恢复布局缩放，不要清空 transform（否则会原形毕露）
+  applyTurntableLayoutTuning();
 
   setTurntableState(true);
   await playWithFadeIn();
@@ -930,6 +1152,11 @@ function setTurntableHover(active) {
     turntableHitLayer.classList.toggle("hovered", active);
   }
   turntableControls.classList.toggle("visible", active);
+  // 有布局缩放时用 JS 保持 scale，避免 CSS .hovered 把尺寸打回 1
+  const layoutScale = Number(layoutLabExtras?.turntable?.scale) || 1;
+  if (layoutScale !== 1 || window.__LAYOUT_LAB__?.enabled) {
+    applyTurntableLayoutTuning(active);
+  }
 }
 
 function enterTurntableHoverZone() {
@@ -978,7 +1205,11 @@ function renderTonearm() {
 }
 
 function syncTonearmViewportPosition() {
-  tonearmState.y = Math.round(window.innerHeight * 0.82);
+  if (window.__LAYOUT_LAB__?.lockAutoTonearm || window.__LAYOUT_PROFILE_ACTIVE__) {
+    renderTonearm();
+    return;
+  }
+  tonearmState.y = Math.round(getStageSize().height * 0.82);
   renderTonearm();
 }
 
@@ -1014,7 +1245,7 @@ function spawnFloatingCucumber() {
   cucumberLayer.appendChild(img);
 
   const size = (42 + Math.random() * 34) * 1.25;
-  const yBase = window.innerHeight * (0.12 + Math.random() * 0.72);
+  const yBase = getStageSize().height * (0.12 + Math.random() * 0.72);
   const state = makeCucumberState({
     x: -size - 120 - Math.random() * 180,
     y: yBase,
@@ -1046,7 +1277,7 @@ function animateCucumbers(timeMs) {
       c.x += c.speed / 60;
       c.y = c.yBase + Math.sin(t * c.wobbleFreq * Math.PI * 2 + c.phase) * c.wobbleAmp;
       c.node.style.transform = `translate(${c.x}px, ${c.y}px) scale(1)`;
-      if (c.x > window.innerWidth + 160) {
+      if (c.x > getStageSize().width + 160) {
         c.node.remove();
         floatingCucumbers.splice(i, 1);
       }
@@ -1172,8 +1403,9 @@ function animateUnlockCucumberToCenter() {
   const startRect = unlockCucumberEl.getBoundingClientRect();
   const startX = startRect.left + startRect.width * 0.5;
   const startY = startRect.top + startRect.height * 0.5;
-  const targetX = window.innerWidth * 0.5;
-  const targetY = window.innerHeight * 0.5;
+  const stage = getStageSize();
+  const targetX = stage.width * 0.5;
+  const targetY = stage.height * 0.5;
   const durationMs = 4000;
   const startedAt = performance.now();
   const frame = (now) => {
@@ -1292,35 +1524,40 @@ function initTitleSplashParticles() {
 
   const resize = () => {
     const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    canvas.width = Math.floor(window.innerWidth * ratio);
-    canvas.height = Math.floor(window.innerHeight * ratio);
-    canvas.style.width = `${window.innerWidth}px`;
-    canvas.style.height = `${window.innerHeight}px`;
+    const stage = getStageSize();
+    canvas.width = Math.floor(stage.width * ratio);
+    canvas.height = Math.floor(stage.height * ratio);
+    canvas.style.width = `${stage.width}px`;
+    canvas.style.height = `${stage.height}px`;
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   };
   resize();
 
-  titleSplashParticlesData = Array.from({ length: 90 }, () => ({
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    r: 0.8 + Math.random() * 2,
-    vx: -0.22 + Math.random() * 0.44,
-    vy: -0.18 + Math.random() * 0.36,
-    a: 0.18 + Math.random() * 0.52,
-  }));
+  titleSplashParticlesData = Array.from({ length: 90 }, () => {
+    const stage = getStageSize();
+    return {
+      x: Math.random() * stage.width,
+      y: Math.random() * stage.height,
+      r: 0.8 + Math.random() * 2,
+      vx: -0.22 + Math.random() * 0.44,
+      vy: -0.18 + Math.random() * 0.36,
+      a: 0.18 + Math.random() * 0.52,
+    };
+  });
 
   const draw = () => {
     if (titleSplashCrashing || !titleSplash || titleSplash.classList.contains("hidden")) {
       return;
     }
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    const stage = getStageSize();
+    ctx.clearRect(0, 0, stage.width, stage.height);
     for (const p of titleSplashParticlesData) {
       p.x += p.vx;
       p.y += p.vy;
-      if (p.x < -20) p.x = window.innerWidth + 20;
-      if (p.x > window.innerWidth + 20) p.x = -20;
-      if (p.y < -20) p.y = window.innerHeight + 20;
-      if (p.y > window.innerHeight + 20) p.y = -20;
+      if (p.x < -20) p.x = stage.width + 20;
+      if (p.x > stage.width + 20) p.x = -20;
+      if (p.y < -20) p.y = stage.height + 20;
+      if (p.y > stage.height + 20) p.y = -20;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(56, 158, 107, ${p.a})`;
@@ -1340,8 +1577,9 @@ function explodeTitleSplashBackground() {
   titleSplashFragments.innerHTML = "";
   const cols = 5;
   const rows = 3;
-  const shardW = Math.ceil(window.innerWidth / cols);
-  const shardH = Math.ceil(window.innerHeight / rows);
+  const stage = getStageSize();
+  const shardW = Math.ceil(stage.width / cols);
+  const shardH = Math.ceil(stage.height / rows);
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
       const shard = document.createElement("div");
@@ -1412,9 +1650,7 @@ function spawnTitleSplashLogoCucumbers() {
 
 function triggerTitleSplashCrash() {
   if (!titleSplash || titleSplashCrashing) return;
-  const centerX = window.innerWidth * 0.5;
-  const centerY = window.innerHeight * 0.5;
-  triggerTitleSplashReveal(centerX, centerY);
+  triggerTitleSplashReveal(window.innerWidth * 0.5, window.innerHeight * 0.5);
 }
 
 function triggerTitleSplashReveal(clientX, clientY) {
@@ -1434,15 +1670,17 @@ function triggerTitleSplashReveal(clientX, clientY) {
   spawnTitleSplashLogoCucumbers();
   triggerFirstUserAudioStart();
   triggerStageOpenPlayback();
+  const stagePoint = viewportToStagePoint(clientX, clientY);
+  const stage = getStageSize();
   titleSplash.classList.add("revealing");
-  titleSplash.style.setProperty("--reveal-x", `${clientX}px`);
-  titleSplash.style.setProperty("--reveal-y", `${clientY}px`);
+  titleSplash.style.setProperty("--reveal-x", `${stagePoint.x}px`);
+  titleSplash.style.setProperty("--reveal-y", `${stagePoint.y}px`);
   titleSplash.style.setProperty("--reveal-r", "0px");
 
   const maxRadius =
     Math.hypot(
-      Math.max(clientX, window.innerWidth - clientX),
-      Math.max(clientY, window.innerHeight - clientY)
+      Math.max(stagePoint.x, stage.width - stagePoint.x),
+      Math.max(stagePoint.y, stage.height - stagePoint.y)
     ) + 80;
   const durationMs = 360;
   const startedAt = performance.now();
@@ -1475,6 +1713,7 @@ function initTitleSplash() {
 
 function openRechargeModal() {
   if (!rechargeModal) return;
+  syncRechargeUiScale();
   rechargeModalOpen = true;
   rechargeModal.classList.add("active");
   rechargeModal.setAttribute("aria-hidden", "false");
@@ -1594,6 +1833,7 @@ function tickCharacterPair() {
 }
 
 function startTopWidgetsRotateWobble() {
+  if (window.__LAYOUT_LAB__?.enabled) return;
   if (topWidgetsWobbleTimer !== null) {
     window.clearTimeout(topWidgetsWobbleTimer);
     topWidgetsWobbleTimer = null;
@@ -1634,6 +1874,265 @@ function applyTurntableControlsTuning() {
     `translateX(-50%) translate(${turntableControlsTuning.x}px, ${turntableControlsTuning.y}px)`;
 }
 
+const layoutLabExtras = {
+  turntable: { left: -540, topPercent: 50, scale: 1 },
+  centerPanel: { leftPercent: 54, topPercent: 51.5, widthPx: 0 },
+  leftPanel: { left: 68, widthPx: 0 },
+  currencyWidget: { right: 6, top: 0, scale: 0.75 },
+  searchBar: { xPercent: -33.333, scale: 1 },
+  menuArc: {
+    radius: MENU_RADIUS_BASE,
+    titleScale: 1,
+    angleStep: MENU_ANGLE_STEP_BASE,
+  },
+};
+
+function syncMenuArcTitleScale() {
+  const arc = layoutLabExtras.menuArc;
+  // 半径与标题图始终联动：以默认半径 450 为 1.0
+  arc.titleScale = arc.radius / MENU_RADIUS_BASE;
+}
+
+function applyMenuArcLayoutTuning() {
+  const arc = layoutLabExtras.menuArc;
+  if (!arc.titleScale || arc.titleScale <= 0) {
+    syncMenuArcTitleScale();
+  }
+  const height = MENU_TITLE_HEIGHT_BASE * arc.titleScale;
+  document.querySelectorAll(".menu-title-image").forEach((img) => {
+    if (img instanceof HTMLElement) {
+      img.style.height = `${height}px`;
+    }
+  });
+  document.documentElement.style.setProperty("--menu-title-scale", String(arc.titleScale));
+  renderPositions();
+}
+
+function applyCardContentScale() {
+  const panel = document.querySelector(".center-panel");
+  const card = sceneCard;
+  let cardWidth = 0;
+  if (card instanceof HTMLElement && card.offsetWidth > 0) {
+    cardWidth = card.offsetWidth;
+  } else if (panel instanceof HTMLElement && panel.offsetWidth > 0) {
+    cardWidth = panel.offsetWidth * 0.855;
+  } else if (layoutLabExtras.centerPanel.widthPx > 0) {
+    cardWidth = layoutLabExtras.centerPanel.widthPx * 0.855;
+  } else {
+    cardWidth = CARD_TEXT_BASE_WIDTH;
+  }
+  const scale = Math.max(0.35, cardWidth / CARD_TEXT_BASE_WIDTH);
+  document.documentElement.style.setProperty("--card-content-scale", String(scale));
+  syncRechargeUiScale();
+}
+
+function syncRechargeUiScale() {
+  const { height } = getStageSize();
+  // 充值面板设计高度按 768（1024×768）；按舞台高度留边后整体缩放
+  const RECHARGE_DESIGN_HEIGHT = 768;
+  let scale = (height * 0.86) / RECHARGE_DESIGN_HEIGHT;
+  const isCompact =
+    document.documentElement.classList.contains("phone-stage") ||
+    document.documentElement.classList.contains("tablet-stage") ||
+    Boolean(window.__LAYOUT_LAB__?.enabled);
+  if (isCompact) {
+    scale = Math.min(0.92, Math.max(0.32, scale));
+  } else {
+    scale = Math.min(1, Math.max(0.55, scale));
+  }
+  document.documentElement.style.setProperty("--recharge-ui-scale", String(scale));
+}
+
+function applyTurntableLayoutTuning(hovered) {
+  const t = layoutLabExtras.turntable;
+  const isHovered =
+    typeof hovered === "boolean"
+      ? hovered
+      : Boolean(turntablePair?.classList.contains("hovered"));
+  const shiftX = isHovered ? 125 : 0;
+  const transform = `translate(${shiftX}px, -50%) scale(${t.scale})`;
+  if (turntablePair) {
+    turntablePair.style.left = `${t.left}px`;
+    turntablePair.style.top = `${t.topPercent}%`;
+    turntablePair.style.transform = transform;
+  }
+  if (turntableHitLayer) {
+    turntableHitLayer.style.left = `${t.left}px`;
+    turntableHitLayer.style.top = `${t.topPercent}%`;
+    turntableHitLayer.style.transform = transform;
+  }
+}
+
+function applyCenterPanelLayoutTuning() {
+  const panel = document.querySelector(".center-panel");
+  if (!panel) return;
+  const p = layoutLabExtras.centerPanel;
+  panel.style.left = `${p.leftPercent}%`;
+  panel.style.top = `${p.topPercent}%`;
+  if (p.widthPx !== 0 && p.widthPx != null) {
+    panel.style.width = `${p.widthPx}px`;
+  } else {
+    panel.style.width = "";
+  }
+  applyCardContentScale();
+}
+
+function applyLeftPanelLayoutTuning() {
+  const panel = document.querySelector(".left-panel");
+  if (!panel) return;
+  const p = layoutLabExtras.leftPanel;
+  panel.style.left = `${p.left}px`;
+  if (p.widthPx !== 0 && p.widthPx != null) {
+    panel.style.width = `${p.widthPx}px`;
+  } else {
+    panel.style.width = "";
+  }
+}
+
+function applyCurrencyWidgetLayoutTuning() {
+  if (!cucumberCurrencyWidget) return;
+  const p = layoutLabExtras.currencyWidget;
+  cucumberCurrencyWidget.style.right = `${p.right}px`;
+  cucumberCurrencyWidget.style.top = `${p.top}px`;
+  cucumberCurrencyWidget.style.transform = `translateX(-23.333%) scale(${p.scale})`;
+}
+
+function applySearchBarLayoutTuning() {
+  if (!searchBarDecor || searchBarDismissed) return;
+  const p = layoutLabExtras.searchBar;
+  searchBarDecor.style.transform = `translateX(${p.xPercent}%) scale(${p.scale})`;
+}
+
+function collectLayoutLabParams() {
+  return {
+    character: {
+      x: Number(characterTuning.x.toFixed(2)),
+      y: Number(characterTuning.y.toFixed(2)),
+      scale: Number(characterTuning.scale.toFixed(4)),
+    },
+    bigCucumber: {
+      xPercent: Number(bigCucumberTuning.xPercent.toFixed(2)),
+      yPercent: Number(bigCucumberTuning.yPercent.toFixed(2)),
+      scale: Number(bigCucumberTuning.scale.toFixed(4)),
+    },
+    turntableControls: {
+      x: Number(turntableControlsTuning.x.toFixed(2)),
+      y: Number(turntableControlsTuning.y.toFixed(2)),
+    },
+    tonearm: {
+      x: Number(tonearmState.x.toFixed(2)),
+      y: Number(tonearmState.y.toFixed(2)),
+      scale: Number(tonearmState.scale.toFixed(4)),
+      angle: Number(tonearmState.angle.toFixed(2)),
+    },
+    turntable: { ...layoutLabExtras.turntable },
+    centerPanel: { ...layoutLabExtras.centerPanel },
+    leftPanel: { ...layoutLabExtras.leftPanel },
+    currencyWidget: { ...layoutLabExtras.currencyWidget },
+    searchBar: { ...layoutLabExtras.searchBar },
+    menuArc: {
+      radius: Number(layoutLabExtras.menuArc.radius.toFixed(2)),
+      titleScale: Number(layoutLabExtras.menuArc.titleScale.toFixed(4)),
+      angleStep: Number(layoutLabExtras.menuArc.angleStep.toFixed(4)),
+    },
+  };
+}
+
+function applyLayoutLabParams(params) {
+  if (!params || typeof params !== "object") return;
+  if (params.character) {
+    Object.assign(characterTuning, params.character);
+    applyCharacterTransform();
+  }
+  if (params.bigCucumber) {
+    Object.assign(bigCucumberTuning, params.bigCucumber);
+    applyBigCucumberTransform();
+  }
+  if (params.turntableControls) {
+    Object.assign(turntableControlsTuning, params.turntableControls);
+    applyTurntableControlsTuning();
+  }
+  if (params.tonearm) {
+    Object.assign(tonearmState, params.tonearm);
+    renderTonearm();
+  }
+  if (params.turntable) {
+    Object.assign(layoutLabExtras.turntable, params.turntable);
+    applyTurntableLayoutTuning();
+  }
+  if (params.centerPanel) {
+    Object.assign(layoutLabExtras.centerPanel, params.centerPanel);
+    applyCenterPanelLayoutTuning();
+  }
+  if (params.leftPanel) {
+    Object.assign(layoutLabExtras.leftPanel, params.leftPanel);
+    applyLeftPanelLayoutTuning();
+  }
+  if (params.currencyWidget) {
+    Object.assign(layoutLabExtras.currencyWidget, params.currencyWidget);
+    applyCurrencyWidgetLayoutTuning();
+  }
+  if (params.searchBar) {
+    Object.assign(layoutLabExtras.searchBar, params.searchBar);
+    applySearchBarLayoutTuning();
+  }
+  if (params.menuArc) {
+    Object.assign(layoutLabExtras.menuArc, params.menuArc);
+    if (params.menuArc.radius != null && params.menuArc.titleScale == null) {
+      syncMenuArcTitleScale();
+    }
+    applyMenuArcLayoutTuning();
+  }
+}
+
+function skipIntroForLayoutLab() {
+  if (!window.__LAYOUT_LAB__?.enabled) return;
+  if (titleSplash) {
+    titleSplash.classList.add("hidden");
+    titleSplash.setAttribute("aria-hidden", "true");
+    titleSplash.style.display = "none";
+    titleSplashCrashing = true;
+  }
+  stageIntroCompleted = true;
+  stageOpeningTriggered = true;
+  // 调试页已移除幕布节点；若仍存在则直接打开并禁用
+  document.getElementById("stage-curtain-layer")?.remove();
+  if (stageCurtainLayer) {
+    stageCurtainLayer.classList.add("is-opened");
+    stageCurtainLayer.classList.remove("is-revealing");
+    stageCurtainLayer.style.pointerEvents = "none";
+    stageCurtainLayer.style.display = "none";
+  }
+  if (characterStage) {
+    characterStage.style.opacity = "1";
+  }
+}
+
+window.LayoutLabAPI = {
+  getParams: collectLayoutLabParams,
+  applyParams: applyLayoutLabParams,
+  getStageSize,
+  getTuningRefs: () => ({
+    characterTuning,
+    bigCucumberTuning,
+    turntableControlsTuning,
+    tonearmState,
+    layoutLabExtras,
+  }),
+  applyers: {
+    character: applyCharacterTransform,
+    bigCucumber: applyBigCucumberTransform,
+    turntableControls: applyTurntableControlsTuning,
+    tonearm: renderTonearm,
+    turntable: applyTurntableLayoutTuning,
+    centerPanel: applyCenterPanelLayoutTuning,
+    leftPanel: applyLeftPanelLayoutTuning,
+    currencyWidget: applyCurrencyWidgetLayoutTuning,
+    searchBar: applySearchBarLayoutTuning,
+    menuArc: applyMenuArcLayoutTuning,
+  },
+};
+
 function setStageOpenProgress(nextProgress) {
   if (!stageCurtainLayer || !stageCurtainClosed || stageIntroCompleted) return;
   const progress = Math.max(0, Math.min(1, nextProgress));
@@ -1650,14 +2149,15 @@ function setStageOpenProgress(nextProgress) {
 
 function ensureStageSequenceCanvasSize() {
   if (!(stageCurtainSeqCanvas instanceof HTMLCanvasElement)) return;
-  const nextWidth = Math.max(1, Math.floor(window.innerWidth));
-  const nextHeight = Math.max(1, Math.floor(window.innerHeight));
+  const stage = getStageSize();
+  const nextWidth = Math.max(1, Math.floor(stage.width));
+  const nextHeight = Math.max(1, Math.floor(stage.height));
   if (stageCurtainSeqCanvas.width !== nextWidth || stageCurtainSeqCanvas.height !== nextHeight) {
     stageCurtainSeqCanvas.width = nextWidth;
     stageCurtainSeqCanvas.height = nextHeight;
   }
-  stageCurtainSeqCanvas.style.width = `${window.innerWidth}px`;
-  stageCurtainSeqCanvas.style.height = `${window.innerHeight}px`;
+  stageCurtainSeqCanvas.style.width = `${stage.width}px`;
+  stageCurtainSeqCanvas.style.height = `${stage.height}px`;
   if (!stageCurtainSeqCanvasCtx) {
     stageCurtainSeqCanvasCtx = stageCurtainSeqCanvas.getContext("2d", { alpha: true });
   }
@@ -1870,7 +2370,7 @@ function animateBigCucumberKick(distancePx, durationMs, onStep) {
 function animateSearchBarFlyOut() {
   if (!searchBarDecor || searchBarDismissed) return Promise.resolve();
   const rect = searchBarDecor.getBoundingClientRect();
-  const distance = window.innerWidth - rect.left + rect.width + 80;
+  const distance = getStageSize().width - rect.left + rect.width + 80;
   const anim = searchBarDecor.animate(
     [
       { transform: "translateX(-33.333%) translateX(0px)", opacity: 1 },
@@ -1934,7 +2434,7 @@ async function runBigCucumberKickSequence() {
     }
     await searchFlyPromise;
     // 特效起点对齐“搜索栏飞出屏幕”的右上出口
-    burstX = window.innerWidth - 12;
+    burstX = getStageSize().width - 12;
   }
 
   spawnCucumberBurstToCurrency(burstX, burstY, 5);
@@ -1955,7 +2455,7 @@ function getCucumberCurrencyMergePoint() {
     };
   }
   return {
-    x: window.innerWidth - 220,
+    x: getStageSize().width - 220,
     y: 70,
   };
 }
@@ -2132,6 +2632,8 @@ window.addEventListener("pointerdown", onMenuTouchStart, { passive: true });
 window.addEventListener("pointermove", onMenuTouchMove, { passive: false });
 window.addEventListener("pointerup", onMenuTouchEnd, { passive: true });
 window.addEventListener("pointercancel", onMenuTouchEnd, { passive: true });
+window.addEventListener("resize", syncViewportMode);
+window.addEventListener("orientationchange", syncViewportMode);
 window.addEventListener("resize", syncTonearmViewportPosition);
 window.addEventListener("resize", syncTopDecorHeight);
 window.addEventListener("resize", syncTitleAndCardLeftShift);
@@ -2357,8 +2859,29 @@ renderCucumberCurrencyCount();
 syncTopDecorHeight();
 applyBigCucumberTransform();
 applyTurntableControlsTuning();
-applyCharacterTransform();
-syncTitleAndCardLeftShift();
+syncViewportMode();
+if (window.__LAYOUT_LAB__?.enabled) {
+  window.__LAYOUT_LAB__.lockAutoCharacter = true;
+  window.__LAYOUT_LAB__.lockAutoTonearm = true;
+  skipIntroForLayoutLab();
+  // 初始化 tonearm y，避免仍为 0
+  if (!tonearmState.y) {
+    tonearmState.y = Math.round(getStageSize().height * 0.82);
+  }
+  renderTonearm();
+  applyTurntableLayoutTuning();
+  applyCenterPanelLayoutTuning();
+  applyLeftPanelLayoutTuning();
+  applyCurrencyWidgetLayoutTuning();
+  applySearchBarLayoutTuning();
+  applyMenuArcLayoutTuning();
+  syncTitleAndCardLeftShift();
+} else {
+  loadLayoutProfiles().then(() => {
+    applyResponsiveLayoutProfile(true);
+    syncTitleAndCardLeftShift();
+  });
+}
 if (characterTickTimer !== null) {
   window.clearTimeout(characterTickTimer);
   characterTickTimer = null;

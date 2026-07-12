@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN" data-layout-lab="ipad">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>布局调参 · iPad 比例</title>
+  <link rel="stylesheet" href="./prototype-left-menu.css">
+  <link rel="stylesheet" href="./layout-lab.css">
+  <script>
+    window.__LAYOUT_LAB__ = {
+      enabled: true,
+      preset: "ipad",
+      // iPad 10 / Air 横屏真实 CSS 视口
+      stageWidth: 1180,
+      stageHeight: 820,
+      lockAutoCharacter: false,
+      lockAutoTonearm: false,
+    };
+  </script>
+</head>
+<body>
+  <div id="stage-root" class="stage-root">
+  <video class="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="./背景素材/背景动画.mp4" type="video/mp4">
+  </video>
+  <img class="stage-overlay" src="./背景素材/舞台.png" alt="" aria-hidden="true">
+  <div id="unlock-cucumber-layer" class="unlock-cucumber-layer" aria-hidden="true"></div>
+  <div id="unlock-whiteout" class="unlock-whiteout" aria-hidden="true"></div>
+  <div id="title-splash" class="title-splash" aria-hidden="false" style="display:none">
+    <div class="title-splash-bg"></div>
+    <div id="title-splash-lines" class="title-splash-lines" aria-hidden="true"></div>
+    <canvas id="title-splash-particles" class="title-splash-particles" aria-hidden="true"></canvas>
+    <div class="title-splash-content">
+      <img id="title-splash-logo" class="title-splash-logo" src="./logo/logo.png" alt="莫特奈利斯logo">
+      <h1 class="title-splash-title">莫特奈利斯<br>个人网站</h1>
+      <p class="title-splash-tip">点击进入</p>
+    </div>
+    <div id="title-splash-fragments" class="title-splash-fragments" aria-hidden="true"></div>
+  </div>
+  <div id="recharge-modal" class="recharge-modal" aria-hidden="true">
+    <div id="recharge-panel" class="recharge-panel" role="dialog" aria-label="充值窗口">
+      <img id="recharge-image" class="recharge-image" src="./黄瓜收集/充值.png" alt="充值">
+      <button id="recharge-close-hit" class="recharge-close-hit" type="button" aria-label="关闭充值窗口"></button>
+      <p id="recharge-insufficient" class="recharge-insufficient">余额不足</p>
+    </div>
+  </div>
+
+  <div class="app">
+    <div id="cucumber-layer" class="cucumber-layer" aria-hidden="true"></div>
+    <div id="cucumber-fx-layer" class="cucumber-fx-layer" aria-hidden="true"></div>
+    <div id="character-stage" class="character-stage" aria-hidden="true">
+      <img id="character-sprite" class="character-sprite" src="" alt="">
+    </div>
+    <div class="stage-lights-layer" aria-hidden="true">
+      <span class="stage-light stage-light-a"></span>
+      <span class="stage-light stage-light-b"></span>
+      <span class="stage-light stage-light-c"></span>
+      <span class="stage-light stage-light-d"></span>
+      <span class="stage-light-sweep"></span>
+    </div>
+    <div class="top-decor-layer" aria-hidden="true">
+      <img id="big-cucumber-decor" class="big-cucumber-decor" src="./黄瓜收集/粗大黄瓜.png" alt="">
+      <img id="search-bar-decor" class="search-bar-decor" src="./黄瓜收集/搜索.png" alt="">
+    </div>
+    <div id="cucumber-currency-widget" class="cucumber-currency-widget" aria-label="黄瓜货币窗口">
+      <img class="cucumber-currency-bg" src="./黄瓜收集/黄瓜货币.png" alt="黄瓜货币窗口">
+      <div class="cucumber-currency-count-wrap">
+        <span id="cucumber-currency-count" class="cucumber-currency-count">0</span>
+      </div>
+      <button id="cucumber-add-btn" class="cucumber-add-btn" type="button" aria-label="增加黄瓜货币">
+        <img class="cucumber-add-icon" src="./黄瓜收集/加号.png" alt="">
+      </button>
+    </div>
+    <div id="turntable-pair" class="turntable-pair">
+      <img id="vinyl-disc" class="vinyl-disc" src="./唱片部分/唱片.png" alt="唱片">
+      <div id="vinyl-cover-rotor" class="vinyl-cover-rotor" aria-hidden="true">
+        <img id="vinyl-cover" class="vinyl-cover" src="" alt="">
+      </div>
+    </div>
+    <div id="turntable-hit-layer" class="turntable-hit-layer" aria-hidden="true">
+      <div id="cover-zone" class="cover-zone">
+        <button id="cover-hotspot" class="cover-hotspot" type="button" aria-label="唱片封面交互区"></button>
+        <div id="turntable-controls" class="turntable-controls" aria-label="播放控制">
+          <button id="play-pause-btn" class="tt-btn" type="button">播放</button>
+          <button id="next-track-btn" class="tt-btn" type="button">下一首</button>
+        </div>
+      </div>
+    </div>
+    <img id="tonearm" class="tonearm" src="./唱片部分/唱片机.png" alt="唱片机读写器">
+    <audio id="bg-audio" preload="auto" playsinline></audio>
+
+    <aside class="left-panel">
+      <ul id="menu-list" class="menu-list" aria-label="左侧菜单"></ul>
+    </aside>
+
+    <main class="center-panel">
+      <div id="scene-card" class="scene-card">
+        <div id="card-wobble" class="card-wobble">
+          <img id="card-base" class="card-layer card-base" src="" alt="卡片底图">
+          <div class="card-text-strip">
+            <div id="card-text-scroll" class="card-text-scroll">
+              <h2 id="active-name" class="active-name">-</h2>
+              <div id="active-desc" class="scene-desc">-</div>
+            </div>
+          </div>
+          <img id="card-outer" class="card-layer card-outer" src="" alt="卡片外层装饰">
+          <img id="card-flash" class="card-layer card-flash" src="" alt="" aria-hidden="true">
+          <button id="card-hotspot" class="card-hotspot" type="button" aria-label="卡片互动热点"></button>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  </div>
+
+  <script src="./prototype-left-menu.js"></script>
+  <script src="./layout-lab.js"></script>
+</body>
+</html>

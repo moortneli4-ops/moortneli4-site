@@ -1,0 +1,270 @@
+/* Layout Lab — 调参控制台 */
+
+.lab-shell {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 0;
+  background: #1a1a1a;
+  overflow: hidden;
+}
+
+.lab-stage-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 40px 40px,
+    #111;
+}
+
+.lab-stage-frame {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--lab-stage-w);
+  height: var(--lab-stage-h);
+  min-width: var(--lab-stage-w);
+  min-height: var(--lab-stage-h);
+  max-width: var(--lab-stage-w);
+  max-height: var(--lab-stage-h);
+  /* 允许组件超出画布边界继续调，真实可视区仍用虚线框标出 */
+  overflow: visible;
+  background: #000;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), 0 18px 48px rgba(0, 0, 0, 0.55);
+}
+
+.lab-stage-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px dashed rgba(125, 255, 176, 0.55);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.lab-stage-frame .stage-root {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+}
+
+/* 调试台：取消手机 CSS 尺寸夹紧，完全交给手调参数 */
+html.layout-lab-mode.phone-stage .character-sprite {
+  width: 760px !important;
+  max-width: none !important;
+}
+
+html.layout-lab-mode.phone-stage .left-panel {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+html.layout-lab-mode.phone-stage .menu-item {
+  width: 620px !important;
+  max-width: none !important;
+  font-size: 64px !important;
+}
+
+html.layout-lab-mode.phone-stage .menu-title-image {
+  max-height: none !important;
+}
+
+html.layout-lab-mode.phone-stage .center-panel {
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+html.layout-lab-mode.tablet-stage .character-sprite,
+html.layout-lab-mode.phone-stage .character-sprite {
+  width: 760px !important;
+  max-width: none !important;
+}
+
+html.layout-lab-mode .turntable-pair,
+html.layout-lab-mode .tonearm,
+html.layout-lab-mode .character-stage,
+html.layout-lab-mode .center-panel,
+html.layout-lab-mode .left-panel,
+html.layout-lab-mode .cucumber-currency-widget,
+html.layout-lab-mode .big-cucumber-decor,
+html.layout-lab-mode .search-bar-decor {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* 背景视频 + 舞台底图：强制拉伸铺满调试画布，不做 cover 裁切 */
+.lab-stage-frame .bg-video,
+.lab-stage-frame .stage-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill !important;
+  object-position: center center !important;
+  pointer-events: none;
+}
+
+.lab-stage-frame .app,
+.lab-stage-frame .title-splash,
+.lab-stage-frame .recharge-modal,
+.lab-stage-frame .unlock-cucumber-layer,
+.lab-stage-frame .unlock-whiteout {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.lab-stage-frame .left-panel,
+.lab-stage-frame .menu-list {
+  height: 100% !important;
+}
+
+.lab-stage-frame .stage-lights-layer {
+  width: 56% !important;
+  height: 100% !important;
+}
+
+.lab-stage-frame .stage-light {
+  width: 26% !important;
+  height: 125% !important;
+}
+
+.lab-stage-label {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  z-index: 50;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #d7ffe4;
+  font: 600 12px/1.4 "Segoe UI", "PingFang SC", sans-serif;
+  pointer-events: none;
+}
+
+.lab-panel {
+  position: relative;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 14px 18px;
+  color: #e8fff0;
+  background: #162018;
+  border-left: 1px solid rgba(145, 255, 206, 0.28);
+  overflow: auto;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.lab-panel h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.lab-panel .lab-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(215, 255, 228, 0.72);
+}
+
+.lab-panel label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: rgba(215, 255, 228, 0.85);
+}
+
+.lab-panel select,
+.lab-panel button,
+.lab-panel textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid rgba(145, 255, 206, 0.35);
+  background: rgba(8, 34, 22, 0.85);
+  color: #e8fff0;
+  font-size: 13px;
+  padding: 8px 10px;
+}
+
+.lab-panel button {
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.lab-panel button:hover {
+  background: rgba(30, 90, 58, 0.95);
+}
+
+.lab-panel button.secondary {
+  background: rgba(20, 40, 30, 0.9);
+  font-weight: 500;
+}
+
+.lab-keys {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(215, 255, 228, 0.8);
+}
+
+.lab-keys code {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.lab-values {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(145, 255, 206, 0.2);
+  font: 12px/1.45 ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.lab-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.lab-status {
+  min-height: 1.2em;
+  font-size: 12px;
+  color: #9dffc0;
+}
+
+.lab-selected-outline {
+  outline: 2px solid #7dffb0 !important;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .lab-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 42vh;
+  }
+
+  .lab-panel {
+    border-left: none;
+    border-top: 1px solid rgba(145, 255, 206, 0.28);
+  }
+}
