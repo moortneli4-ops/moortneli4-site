@@ -42,6 +42,7 @@ const bgAudio = document.getElementById("bg-audio");
 const tonearm = document.getElementById("tonearm");
 const stageCurtainLayer = document.getElementById("stage-curtain-layer");
 const stageCurtainClosed = document.getElementById("stage-curtain-closed");
+const stageCurtainSeqCanvas = document.getElementById("stage-curtain-seq-canvas");
 const stageCurtainSeqFrame = document.getElementById("stage-curtain-seq-frame");
 const stageCurtainOpen = document.getElementById("stage-curtain-open");
 const rechargeModal = document.getElementById("recharge-modal");
@@ -171,6 +172,14 @@ let stageIntroCompleted = false;
 let stageOpeningTriggered = false;
 const STAGE_SEQUENCE_FRAME_COUNT = 25;
 let stageSequencePlaybackTimer = null;
+const stageSequenceFramePaths = Array.from(
+  { length: STAGE_SEQUENCE_FRAME_COUNT },
+  (_, i) => `./stage_open_white_alpha_frames/frame_${String(i).padStart(4, "0")}.png`
+);
+let stageSequencePreloadPromise = null;
+let stageSequenceFramesReady = false;
+let stageSequenceFrameImages = [];
+let stageCurtainSeqCanvasCtx = null;
 const turntableControlsTuning = {
   x: 112,
   y: -110,
@@ -1626,8 +1635,50 @@ function setStageOpenProgress(nextProgress) {
   stageCurtainLayer.classList.remove("is-opened");
   stageCurtainLayer.classList.add("is-revealing");
   stageCurtainClosed.style.opacity = `${Math.max(0, 1 - progress * 1.15)}`;
+  if (stageCurtainSeqCanvas) {
+    stageCurtainSeqCanvas.style.opacity = "1";
+  }
   if (stageCurtainSeqFrame) {
-    stageCurtainSeqFrame.style.opacity = progress > 0 ? "1" : "0";
+    stageCurtainSeqFrame.style.opacity = stageCurtainSeqCanvas ? "0" : "1";
+  }
+}
+
+function ensureStageSequenceCanvasSize() {
+  if (!(stageCurtainSeqCanvas instanceof HTMLCanvasElement)) return;
+  const nextWidth = Math.max(1, Math.floor(window.innerWidth));
+  const nextHeight = Math.max(1, Math.floor(window.innerHeight));
+  if (stageCurtainSeqCanvas.width !== nextWidth || stageCurtainSeqCanvas.height !== nextHeight) {
+    stageCurtainSeqCanvas.width = nextWidth;
+    stageCurtainSeqCanvas.height = nextHeight;
+  }
+  stageCurtainSeqCanvas.style.width = `${window.innerWidth}px`;
+  stageCurtainSeqCanvas.style.height = `${window.innerHeight}px`;
+  if (!stageCurtainSeqCanvasCtx) {
+    stageCurtainSeqCanvasCtx = stageCurtainSeqCanvas.getContext("2d", { alpha: true });
+  }
+}
+
+function drawStageSequenceFrame(frameIndex) {
+  const bounded = Math.max(0, Math.min(STAGE_SEQUENCE_FRAME_COUNT - 1, frameIndex));
+  const frame = stageSequenceFrameImages[bounded];
+  if (stageCurtainSeqCanvas && stageCurtainSeqCanvasCtx && frame) {
+    ensureStageSequenceCanvasSize();
+    const ctx = stageCurtainSeqCanvasCtx;
+    const cw = stageCurtainSeqCanvas.width;
+    const ch = stageCurtainSeqCanvas.height;
+    const fw = frame.width || 1;
+    const fh = frame.height || 1;
+    const scale = Math.max(cw / fw, ch / fh);
+    const dw = fw * scale;
+    const dh = fh * scale;
+    const dx = (cw - dw) * 0.5;
+    const dy = (ch - dh) * 0.5;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(frame, dx, dy, dw, dh);
+    return;
+  }
+  if (stageCurtainSeqFrame) {
+    stageCurtainSeqFrame.src = stageSequenceFramePaths[bounded];
   }
 }
 
@@ -1636,40 +1687,99 @@ function finalizeStageOpened() {
   stageIntroCompleted = true;
   stageOpeningTriggered = false;
   if (stageSequencePlaybackTimer !== null) {
-    window.clearInterval(stageSequencePlaybackTimer);
+    window.cancelAnimationFrame(stageSequencePlaybackTimer);
     stageSequencePlaybackTimer = null;
   }
   stageCurtainLayer.classList.add("is-opened");
   stageCurtainLayer.classList.remove("is-revealing");
   stageCurtainClosed.style.opacity = "0";
+  if (stageCurtainSeqCanvas) {
+    stageCurtainSeqCanvas.style.opacity = "0";
+  }
   if (stageCurtainSeqFrame) {
     stageCurtainSeqFrame.style.opacity = "0";
   }
   stageCurtainOpen.style.opacity = "1";
 }
 
-function triggerStageOpenPlayback() {
-  if (!stageCurtainLayer || !stageCurtainSeqFrame || stageIntroCompleted || stageOpeningTriggered) return;
-  stageOpeningTriggered = true;
-  stageCurtainSeqFrame.src = "./stage_open_white_alpha_frames/frame_0000.png";
-  setStageOpenProgress(1);
-  stageCurtainSeqFrame.style.opacity = "1";
+function preloadStageSequenceFrames() {
+  if (stageSequenceFramesReady) return Promise.resolve();
+  if (stageSequencePreloadPromise) return stageSequencePreloadPromise;
+  stageSequencePreloadPromise = Promise.all(
+    stageSequenceFramePaths.map(
+      (src) =>
+        new Promise((resolve) => {
+        const img = new Image();
+        img.onload = async () => {
+          if (typeof img.decode === "function") {
+            try {
+              await img.decode();
+            } catch {
+              // ignore decode rejection and still use loaded frame
+            }
+          }
+          resolve(img);
+        };
+        img.onerror = () => resolve(null);
+        img.src = src;
+      })
+    )
+  ).then((frames) => {
+    stageSequenceFrameImages = frames;
+    stageSequenceFramesReady = true;
+  });
+  return stageSequencePreloadPromise;
+}
 
-  let frameIndex = 1;
+async function triggerStageOpenPlayback() {
+  if (!stageCurtainLayer || !stageCurtainSeqFrame || stageIntroCompleted || stageOpeningTriggered) return;
+  await preloadStageSequenceFrames();
+  if (stageIntroCompleted || stageOpeningTriggered) return;
+  stageOpeningTriggered = true;
+  if (stageCurtainOpen) {
+    stageCurtainOpen.style.opacity = "0";
+  }
+  if (stageCurtainClosed) {
+    stageCurtainClosed.style.opacity = "1";
+  }
+  drawStageSequenceFrame(0);
+  setStageOpenProgress(0);
+  if (stageCurtainSeqFrame) {
+    stageCurtainSeqFrame.style.opacity = stageCurtainSeqCanvas ? "0" : "1";
+  }
+  if (stageCurtainSeqCanvas) {
+    stageCurtainSeqCanvas.style.opacity = "1";
+  }
+
   const fps = 24;
-  const intervalMs = Math.round(1000 / fps);
+  const durationMs = Math.round(((STAGE_SEQUENCE_FRAME_COUNT - 1) / fps) * 1000);
+  let lastFrameIndex = -1;
+  const startedAt = performance.now();
   if (stageSequencePlaybackTimer !== null) {
-    window.clearInterval(stageSequencePlaybackTimer);
+    window.cancelAnimationFrame(stageSequencePlaybackTimer);
     stageSequencePlaybackTimer = null;
   }
-  stageSequencePlaybackTimer = window.setInterval(() => {
+
+  const step = (now) => {
     if (stageIntroCompleted) return;
-    stageCurtainSeqFrame.src = `./stage_open_white_alpha_frames/frame_${String(frameIndex).padStart(4, "0")}.png`;
-    frameIndex += 1;
-    if (frameIndex >= STAGE_SEQUENCE_FRAME_COUNT) {
-      finalizeStageOpened();
+    const elapsed = now - startedAt;
+    const progress = Math.max(0, Math.min(1, elapsed / durationMs));
+    setStageOpenProgress(progress);
+    const frameIndex = Math.min(
+      STAGE_SEQUENCE_FRAME_COUNT - 1,
+      Math.floor(progress * (STAGE_SEQUENCE_FRAME_COUNT - 1))
+    );
+    if (frameIndex !== lastFrameIndex) {
+      drawStageSequenceFrame(frameIndex);
+      lastFrameIndex = frameIndex;
     }
-  }, intervalMs);
+    if (progress >= 1) {
+      finalizeStageOpened();
+      return;
+    }
+    stageSequencePlaybackTimer = window.requestAnimationFrame(step);
+  };
+  stageSequencePlaybackTimer = window.requestAnimationFrame(step);
 }
 
 function triggerFirstUserAudioStart() {
@@ -1681,11 +1791,16 @@ function triggerFirstUserAudioStart() {
 }
 
 function initStageCurtainIntro() {
-  if (!stageCurtainLayer || !stageCurtainClosed || !stageCurtainOpen || !stageCurtainSeqFrame) return;
+  if (!stageCurtainLayer || !stageCurtainClosed || !stageCurtainOpen || (!stageCurtainSeqFrame && !stageCurtainSeqCanvas)) return;
   stageCurtainOpen.style.opacity = "0";
-  stageCurtainSeqFrame.style.opacity = "0";
-  stageCurtainSeqFrame.src = "./stage_open_white_alpha_frames/frame_0000.png";
+  if (stageCurtainSeqCanvas) {
+    ensureStageSequenceCanvasSize();
+    stageCurtainSeqCanvas.style.opacity = "0";
+  }
+  stageCurtainSeqFrame.style.opacity = stageCurtainSeqCanvas ? "0" : "1";
+  drawStageSequenceFrame(0);
   stageCurtainClosed.style.opacity = "1";
+  preloadStageSequenceFrames();
 
   stageCurtainLayer.addEventListener("pointerdown", (event) => {
     if (stageIntroCompleted || stageOpeningTriggered) return;
@@ -1945,6 +2060,7 @@ window.addEventListener("keydown", onKeydown);
 window.addEventListener("resize", syncTonearmViewportPosition);
 window.addEventListener("resize", syncTopDecorHeight);
 window.addEventListener("resize", syncTitleAndCardLeftShift);
+window.addEventListener("resize", ensureStageSequenceCanvasSize);
 
 if (bigCucumberDecor) {
   bigCucumberDecor.addEventListener("mouseenter", () => setBigCucumberHover(true));

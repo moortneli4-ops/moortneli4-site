@@ -55,6 +55,10 @@ body {
   pointer-events: none;
 }
 
+#stage-curtain-seq-canvas.stage-curtain-seq-frame {
+  object-fit: cover;
+}
+
 .stage-curtain-closed {
   z-index: 1;
   opacity: 1;
