@@ -1,0 +1,11 @@
+name = "moortneli4-registry"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+GITHUB_REPO = "moortneli4-ops/moortneli4-site"
+GITHUB_REGISTRY_BRANCH = "registry"
+GITHUB_REGISTRY_PATH = "id-registry.json"
+
+# Set GITHUB_TOKEN in: wrangler secret put GITHUB_TOKEN

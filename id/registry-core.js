@@ -214,10 +214,24 @@
     return { status: 200, changed: true, body: { reserves } };
   }
 
+  function applyReplace(registry, op) {
+    const incoming = op.registry;
+    if (!incoming || !Array.isArray(incoming.entries)) {
+      return { status: 400, body: { error: "备份格式不对" }, changed: false };
+    }
+    registry.entries = incoming.entries.map((row) => normalizeEntry(row)).filter(Boolean);
+    registry.entries.sort((a, b) => a.id - b.id);
+    registry.reserves = Array.isArray(incoming.reserves) ? incoming.reserves : [];
+    if (Array.isArray(incoming.rules)) registry.rules = incoming.rules;
+    touch(registry);
+    return { status: 200, changed: true, body: { replaced: true, entries: registry.entries.length } };
+  }
+
   function apply(registry, op) {
     if (!op || op.type === "save") return applySave(registry, op || {});
     if (op.type === "import") return applyImport(registry, op);
     if (op.type === "reserves") return applyReserves(registry, op);
+    if (op.type === "replace") return applyReplace(registry, op);
     return { status: 400, body: { error: "没写上" }, changed: false };
   }
 

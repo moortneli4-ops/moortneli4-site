@@ -1,0 +1,62 @@
+name: Weekly ID registry snapshot
+
+on:
+  schedule:
+    - cron: "0 16 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: registry-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure backup dir
+        run: mkdir -p data/backups
+      - name: Write snapshot
+        run: |
+          STAMP=$(date -u +%Y-%m-%d)
+          SRC="data/id-registry.json"
+          DEST="data/backups/id-registry-${STAMP}.json"
+          if [ ! -f "$SRC" ]; then
+            echo "Missing $SRC"
+            exit 1
+          fi
+          cp "$SRC" "$DEST"
+          node -e "
+          const fs=require('fs');
+          const stamp='$STAMP';
+          const src='$SRC';
+          const dest='$DEST';
+          const reg=JSON.parse(fs.readFileSync(src,'utf8'));
+          const manifestPath='data/backups/manifest.json';
+          let manifest={snapshots:[]};
+          if (fs.existsSync(manifestPath)) {
+            try { manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8')); } catch {}
+          }
+          if (!Array.isArray(manifest.snapshots)) manifest.snapshots=[];
+          manifest.snapshots=manifest.snapshots.filter(s=>s.id!==stamp);
+          manifest.snapshots.unshift({
+            id: stamp,
+            path: dest.replace(/^data\\//,''),
+            updated: reg.updated || null,
+            entries: (reg.entries||[]).length,
+            reserves: (reg.reserves||[]).length
+          });
+          manifest.snapshots=manifest.snapshots.slice(0, 52);
+          fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+          "
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/backups/
+          git diff --cached --quiet && exit 0
+          git commit -m "Weekly ID registry snapshot"
+          git push

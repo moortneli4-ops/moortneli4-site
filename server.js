@@ -14,6 +14,9 @@ loadDotEnv(path.join(LEGACY_DIR, ".env"));
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || "";
 const DEEPSEEK_API_BASE = process.env.DEEPSEEK_API_BASE || "https://api.deepseek.com";
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
+const REGISTRY_BACKEND = process.env.REGISTRY_BACKEND || "local";
+const githubRegistry = require("./id/github-registry");
+const githubSync = !!githubRegistry.resolveConfig(process.env);
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -40,6 +43,12 @@ const MIME_TYPES = {
 const server = http.createServer(async (req, res) => {
   try {
     const reqUrl = new URL(req.url, `http://${req.headers.host || `${HOST}:${PORT}`}`);
+    if (req.method === "OPTIONS" && isRegistryApiPath(reqUrl.pathname)) {
+      writeCors(res);
+      res.writeHead(204);
+      res.end();
+      return;
+    }
     if (reqUrl.pathname === "/api/chat" && req.method === "OPTIONS") {
       writeCors(res);
       res.writeHead(204);
@@ -51,7 +60,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     if (req.method === "GET" && reqUrl.pathname === "/api/ids") {
-      sendJson(res, 200, loadRegistry());
+      await handleIdGet(res);
       return;
     }
     if (req.method === "POST" && reqUrl.pathname === "/api/ids") {
@@ -64,6 +73,10 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === "POST" && reqUrl.pathname === "/api/ids/reserves") {
       await handleReserveSave(req, res);
+      return;
+    }
+    if (req.method === "POST" && reqUrl.pathname === "/api/ids/replace") {
+      await handleIdReplace(req, res);
       return;
     }
     if (req.method === "GET" || req.method === "HEAD") {
@@ -178,8 +191,17 @@ function sendJson(res, status, payload, withCors = false) {
 
 function writeCors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
+function isRegistryApiPath(pathname) {
+  return (
+    pathname === "/api/ids" ||
+    pathname === "/api/ids/import" ||
+    pathname === "/api/ids/reserves" ||
+    pathname === "/api/ids/replace"
+  );
 }
 
 function readJsonBody(req) {
@@ -215,40 +237,77 @@ const REGISTRY_PATH = path.join(ROOT_DIR, "data", "id-registry.json");
 const registryCore = require("./id/registry-core");
 let registryCache = null;
 let saveChain = Promise.resolve();
+let registryWarm = null;
+
+function loadRegistryFromDisk() {
+  return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"));
+}
 
 function loadRegistry() {
   if (!registryCache) {
-    registryCache = JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"));
+    registryCache = loadRegistryFromDisk();
   }
   return registryCache;
 }
 
+async function ensureRegistryLoaded() {
+  if (registryCache) return registryCache;
+  if (REGISTRY_BACKEND === "github" && githubSync) {
+    registryCache = await githubRegistry.fetchRegistry(process.env);
+    return registryCache;
+  }
+  return loadRegistry();
+}
+
 function persistRegistry() {
   const snapshot = JSON.stringify(registryCache);
-  saveChain = saveChain.then(() => fs.promises.writeFile(REGISTRY_PATH, snapshot));
+  saveChain = saveChain
+    .then(() => fs.promises.writeFile(REGISTRY_PATH, snapshot))
+    .then(() => {
+      if (githubSync) return githubRegistry.replaceRegistry(process.env, registryCache);
+    });
   return saveChain;
+}
+
+async function handleIdGet(res) {
+  const payload = await ensureRegistryLoaded();
+  sendJson(res, 200, payload, true);
 }
 
 async function handleIdSave(req, res) {
   const body = await readJsonBody(req);
-  loadRegistry();
+  await ensureRegistryLoaded();
   const result = registryCore.apply(registryCache, { type: "save", entry: body.entry || body, overwrite: !!body.overwrite });
   if (result.changed) await persistRegistry();
-  sendJson(res, result.status, result.body);
+  sendJson(res, result.status, result.body, true);
 }
 
 async function handleIdImport(req, res) {
   const body = await readJsonBody(req);
-  loadRegistry();
+  await ensureRegistryLoaded();
   const result = registryCore.apply(registryCache, { type: "import", entries: body.entries || [], overwriteIds: body.overwriteIds || [] });
   if (result.changed) await persistRegistry();
-  sendJson(res, result.status, result.body);
+  sendJson(res, result.status, result.body, true);
 }
 
 async function handleReserveSave(req, res) {
   const body = await readJsonBody(req);
-  loadRegistry();
+  await ensureRegistryLoaded();
   const result = registryCore.apply(registryCache, { type: "reserves", reserves: body.reserves });
   if (result.changed) await persistRegistry();
-  sendJson(res, result.status, result.body);
+  sendJson(res, result.status, result.body, true);
+}
+
+async function handleIdReplace(req, res) {
+  const body = await readJsonBody(req);
+  await ensureRegistryLoaded();
+  const result = registryCore.apply(registryCache, { type: "replace", registry: body.registry || body });
+  if (result.changed) await persistRegistry();
+  sendJson(res, result.status, { ...result.body, registry: result.changed ? registryCache : undefined }, true);
+}
+
+if (REGISTRY_BACKEND === "github" && githubSync && !registryWarm) {
+  registryWarm = ensureRegistryLoaded().catch((error) => {
+    console.error("registry preload failed:", error.message || error);
+  });
 }

@@ -312,9 +312,15 @@ function renderZones() {
 }
 
 const REGISTRY_RAW = "https://raw.githubusercontent.com/moortneli4-ops/moortneli4-site/registry/id-registry.json";
-const DISPATCH_URL = "https://api.github.com/repos/moortneli4-ops/moortneli4-site/actions/workflows/registry-save.yml/dispatches";
+const SNAPSHOT_MANIFEST = "/data/backups/manifest.json";
 
-async function postJson(url, payload) {
+function apiUrl(path) {
+  const base = (window.REGISTRY_API_BASE || "").replace(/\/$/, "");
+  return base ? `${base}${path}` : path;
+}
+
+async function postJson(path, payload) {
+  const url = apiUrl(path);
   let response;
   try {
     response = await fetch(url, {
@@ -344,87 +350,42 @@ async function postJson(url, payload) {
   return { response, body };
 }
 
-function splitOp(op) {
-  if (op.type !== "import") return [op];
-  const overwriteIds = op.overwriteIds || [];
-  const batches = [];
-  let batch = [];
-  for (const entry of op.entries || []) {
-    const candidate = { type: "import", entries: batch.concat([entry]), overwriteIds };
-    if (batch.length && JSON.stringify(candidate).length > 12000) {
-      batches.push({ type: "import", entries: batch, overwriteIds });
-      batch = [entry];
-    } else {
-      batch.push(entry);
-    }
-  }
-  if (batch.length || !batches.length) batches.push({ type: "import", entries: batch, overwriteIds });
-  return batches;
-}
-
-async function dispatchOp(op) {
-  const token = window.REGISTRY_DISPATCH_TOKEN || "";
-  if (!token) throw new Error("先点右上角保存线上密钥。");
-  const response = await fetch(DISPATCH_URL, {
-    method: "POST",
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    body: JSON.stringify({ ref: "main", inputs: { op: JSON.stringify(op) } }),
-  });
-  if (response.status === 204) return;
-  if (response.status === 401 || response.status === 403) throw new Error("密钥不对或权限不够。");
-  throw new Error("没保存上。");
-}
-
-async function commitRemote(op) {
-  const clone = structuredClone(registry);
-  const result = RegistryCore.apply(clone, op);
-  if (result.status >= 400) return { response: { ok: false, status: result.status }, body: result.body };
-  if (result.changed) {
-    const parts = splitOp(op);
-    for (const part of parts) {
-      if (JSON.stringify(part).length > 60000) throw new Error("没保存上。");
-      await dispatchOp(part);
-    }
-    registry = clone;
+function adoptRegistryIfPresent(body) {
+  if (body && body.registry && Array.isArray(body.registry.entries)) {
+    registry = body.registry;
     indexEntries();
+    if (registry.updated) syncStamp = registry.updated;
+    return true;
   }
-  return { response: { ok: true, status: 200 }, body: result.body, queued: result.changed };
+  return false;
 }
+
+function remoteSaveError(error) {
+  if (error && error.offline) {
+    return "线上登记 API 暂时连不上。若你是站长，请先部署 workers/registry-api 或在本机跑 server.js。";
+  }
+  return error && error.message ? error.message : "没保存上。";
+}
+
+let syncStamp = "";
 
 async function saveZoneBlocks(blocks, fail) {
   const reserves = reservesFromBlocks(blocks);
   let response;
   let body;
-  let queued = false;
   try {
     const local = await postJson("/api/ids/reserves", { reserves });
     response = local.response;
     body = local.body;
   } catch (error) {
-    if (!error.offline) {
-      if (fail) fail.textContent = "编辑失败";
-      return;
-    }
-    try {
-      const remote = await commitRemote({ type: "reserves", reserves });
-      response = remote.response;
-      body = remote.body;
-      queued = !!remote.queued;
-    } catch (remoteError) {
-      if (fail) fail.textContent = remoteError.message || "没保存上。";
-      return;
-    }
+    if (fail) fail.textContent = remoteSaveError(error);
+    return;
   }
   if (!response.ok) {
     if (fail) fail.textContent = body.error || "编辑失败";
     return;
   }
-  if (!queued) registry.reserves = body.reserves;
+  if (!adoptRegistryIfPresent(body)) registry.reserves = body.reserves;
   zoneLock = null;
   renderZones();
 }
@@ -433,6 +394,8 @@ function applyScreen() {
   document.getElementById("page-list").hidden = screen !== "list";
   document.getElementById("page-import").hidden = screen !== "import";
   document.getElementById("page-zones").hidden = screen !== "zones";
+  const snapPage = document.getElementById("page-snapshots");
+  if (snapPage) snapPage.hidden = screen !== "snapshots";
   document.querySelectorAll(".pages button").forEach((button) => {
     button.classList.toggle("is-on", button.dataset.page === screen);
   });
@@ -551,6 +514,7 @@ function render() {
   applyScreen();
   if (screen === "list") renderTable();
   if (screen === "zones" && zoneLock == null) renderZones();
+  if (screen === "snapshots") renderSnapshots();
 }
 
 function setField(id, value) {
@@ -605,25 +569,13 @@ function detail(row) {
 async function saveEntry(entry, overwrite) {
   let response;
   let body;
-  let queued = false;
   try {
     const local = await postJson("/api/ids", { entry, overwrite });
     response = local.response;
     body = local.body;
   } catch (error) {
-    if (!error.offline) {
-      formMsg.textContent = "没写上";
-      return;
-    }
-    try {
-      const remote = await commitRemote({ type: "save", entry, overwrite: !!overwrite });
-      response = remote.response;
-      body = remote.body;
-      queued = !!remote.queued;
-    } catch (remoteError) {
-      formMsg.textContent = remoteError.message || "没保存上。";
-      return;
-    }
+    formMsg.textContent = remoteSaveError(error);
+    return;
   }
   if (response.status === 409) {
     pendingManual = entry;
@@ -639,18 +591,18 @@ async function saveEntry(entry, overwrite) {
     formMsg.textContent = body.error || "没写上";
     return;
   }
-  const index = registry.entries.findIndex((row) => row.id === body.entry.id);
-  if (index >= 0) registry.entries[index] = body.entry;
-  else {
-    registry.entries.push(body.entry);
-    registry.entries.sort((a, b) => a.id - b.id);
+  if (!adoptRegistryIfPresent(body)) {
+    const index = registry.entries.findIndex((row) => row.id === body.entry.id);
+    if (index >= 0) registry.entries[index] = body.entry;
+    else {
+      registry.entries.push(body.entry);
+      registry.entries.sort((a, b) => a.id - b.id);
+    }
+    indexEntries();
   }
-  indexEntries();
   saveConflict.hidden = true;
   pendingManual = null;
-  formMsg.textContent = queued
-    ? `已提交 ${body.entry.id}，大约一分钟后写进仓库。马上刷新可能还是旧的。`
-    : `已写入 ${body.entry.id}`;
+  formMsg.textContent = `已写入 ${body.entry.id}`;
   render();
 }
 
@@ -917,19 +869,19 @@ async function postImport(entries, overwriteIds) {
   try {
     const local = await postJson("/api/ids/import", { entries, overwriteIds });
     if (!local.response.ok) throw new Error(local.body.error || "导入失败");
+    adoptRegistryIfPresent(local.body);
     return local.body;
   } catch (error) {
     if (!error.offline && !(error instanceof TypeError)) throw error;
-    const remote = await commitRemote({ type: "import", entries, overwriteIds });
-    if (!remote.response.ok) throw new Error(remote.body.error || "导入失败");
-    return { ...remote.body, queued: !!remote.queued };
+    throw new Error(remoteSaveError(error));
   }
 }
 
-async function reload() {
+async function reload(options) {
+  const soft = options && options.soft;
   let payload = null;
   try {
-    const response = await fetch("/api/ids", { cache: "no-store" });
+    const response = await fetch(apiUrl("/api/ids"), { cache: "no-store" });
     const type = response.headers.get("content-type") || "";
     if (response.ok && type.includes("json")) payload = await response.json();
   } catch {}
@@ -945,8 +897,10 @@ async function reload() {
     payload = await response.json();
   }
   registry = payload;
+  syncStamp = registry.updated || syncStamp;
   indexEntries();
-  render();
+  if (!soft) render();
+  else render();
 }
 
 async function runImport() {
@@ -955,12 +909,11 @@ async function runImport() {
   try {
     const overwriteIds = pendingImport.map((row) => row.id);
     const result = await postImport(pendingImport, overwriteIds);
-    if (result.queued) render();
-    else await reload();
+    if (!result.conflicts || !result.conflicts.length) await reload({ soft: true });
     shownClashes = folderClashes.concat(result.conflicts || []);
     folderClashes = [];
     pendingImport = [];
-    importMsg.textContent = `新写入 ${result.applied} 条，本来就一样的 ${result.same} 条，对不上 ${shownClashes.length} 条。${result.queued ? "大约一分钟后写进仓库，马上刷新可能还是旧的。" : ""}`;
+    importMsg.textContent = `新写入 ${result.applied} 条，本来就一样的 ${result.same} 条，对不上 ${shownClashes.length} 条。`;
     renderPreview();
     renderClashes();
   } catch (error) {
@@ -979,11 +932,10 @@ async function takeClash(index, side) {
   }
   const chosen = side === "existing" ? clash.existing : clash.incoming;
   const result = await postImport([{ ...chosen, file: clash.file }], [clash.id]);
-  if (!result.queued) await reload();
-  else render();
+  if (!result.conflicts || !result.conflicts.length) await reload({ soft: true });
   const leftover = result.conflicts || [];
   shownClashes.splice(index, 1, ...leftover);
-  importMsg.textContent = leftover.length ? "这份还是没盖上。" : `已按你的选择写入 ${clash.id}${result.queued ? "，大约一分钟后写进仓库。" : ""}`;
+  importMsg.textContent = leftover.length ? "这份还是没盖上。" : `已按你的选择写入 ${clash.id}`;
   renderClashes();
 }
 
@@ -1129,38 +1081,91 @@ zonesEl.addEventListener("submit", (event) => {
   saveZoneBlocks(next, fail);
 });
 
-function mountTokenUi() {
-  const host = location.hostname;
-  const local = host === "127.0.0.1" || host === "localhost";
-  if (local) return;
-  const btn = document.getElementById("token-btn");
-  const dialog = document.getElementById("token-dialog");
-  const input = document.getElementById("token-input");
-  const form = document.getElementById("token-form");
-  if (!btn || !dialog || !input || !form) return;
-  btn.hidden = false;
-  btn.textContent = window.REGISTRY_DISPATCH_TOKEN ? "线上密钥已存" : "线上保存密钥";
-  btn.addEventListener("click", () => {
-    input.value = window.REGISTRY_DISPATCH_TOKEN || "";
-    dialog.showModal();
-  });
-  document.getElementById("token-clear")?.addEventListener("click", () => {
-    saveRegistryDispatchToken("");
-    btn.textContent = "线上保存密钥";
-    input.value = "";
-  });
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    saveRegistryDispatchToken(input.value);
-    btn.textContent = window.REGISTRY_DISPATCH_TOKEN ? "线上密钥已存" : "线上保存密钥";
-    dialog.close();
-  });
+let snapshotManifest = null;
+
+async function loadSnapshotManifest() {
+  try {
+    const response = await fetch(`${SNAPSHOT_MANIFEST}?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return { snapshots: [] };
+    return await response.json();
+  } catch {
+    return { snapshots: [] };
+  }
 }
 
-reload().then(() => {
+function renderSnapshots() {
+  const el = document.getElementById("snapshots");
+  if (!el) return;
+  const list = (snapshotManifest && snapshotManifest.snapshots) || [];
+  if (!list.length) {
+    el.innerHTML = "<p class=\"msg\">还没有周备份。GitHub 每周日会自动留一份，可在这里下载或整表回档。</p>";
+    return;
+  }
+  el.innerHTML = `<p class="msg">每周总表备份，用来下载或整表回档（会覆盖当前线上表，请先确认）。</p>
+    <ul class="snapshot-list">${list.map((row) => {
+      const file = row.path ? `/data/${row.path.replace(/^\/?data\//, "")}` : `/data/backups/id-registry-${row.id}.json`;
+      return `<li>
+      <span>${esc(row.id)}</span>
+      <span>${row.entries ?? "?"} 条</span>
+      <a href="${file}">下载</a>
+      <button type="button" data-restore="${esc(row.id)}">整表回档</button>
+    </li>`;
+    }).join("")}</ul>`;
+}
+
+async function restoreSnapshot(id) {
+  const snap = ((snapshotManifest && snapshotManifest.snapshots) || []).find((row) => row.id === id);
+  if (!snap) return;
+  const path = snap.path ? `/data/${snap.path.replace(/^data\//, "")}` : `/data/backups/id-registry-${id}.json`;
+  const ok = window.confirm(`把整表回档到 ${id}？这会覆盖当前线上登记，其他人也会看到。`);
+  if (!ok) return;
+  const msg = document.getElementById("snapshot-msg");
+  if (msg) msg.textContent = "正在回档…";
+  try {
+    const response = await fetch(path, { cache: "no-store" });
+    if (!response.ok) throw new Error("读备份失败");
+    const payload = await response.json();
+    const result = await postJson("/api/ids/replace", { registry: payload });
+    if (!result.response.ok) throw new Error(result.body.error || "回档失败");
+    adoptRegistryIfPresent(result.body);
+    await reload({ soft: true });
+    if (msg) msg.textContent = `已回档到 ${id}。`;
+  } catch (error) {
+    if (msg) msg.textContent = remoteSaveError(error);
+  }
+}
+
+function startRegistrySync() {
+  syncStamp = registry && registry.updated ? registry.updated : "";
+  window.setInterval(async () => {
+    if (document.visibilityState === "hidden") return;
+    if (zoneLock || pendingImport.length || pendingManual) return;
+    try {
+      const response = await fetch(apiUrl("/api/ids"), { cache: "no-store" });
+      const type = response.headers.get("content-type") || "";
+      if (!response.ok || !type.includes("json")) return;
+      const next = await response.json();
+      if (!next.updated || next.updated === syncStamp) return;
+      syncStamp = next.updated;
+      registry = next;
+      indexEntries();
+      render();
+    } catch {}
+  }, 20000);
+}
+
+reload().then(async () => {
   boot.hidden = true;
   app.hidden = false;
-  mountTokenUi();
+  snapshotManifest = await loadSnapshotManifest();
+  renderSnapshots();
+  startRegistrySync();
 }).catch(() => {
   boot.textContent = "没打开。";
+});
+
+document.getElementById("snapshots")?.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-restore]");
+  if (!button) return;
+  restoreSnapshot(button.dataset.restore);
 });
