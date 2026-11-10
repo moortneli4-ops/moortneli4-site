@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./id.css?v=10">
+  <link rel="stylesheet" href="./id.css?v=11">
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -21,7 +21,20 @@
     <form class="find" role="search">
       <input id="q" type="search" placeholder="搜 ID、曲名、谱师、说明..." autocomplete="off" aria-label="搜索登记">
     </form>
+    <button id="token-btn" type="button" class="token-btn" hidden>线上保存密钥</button>
   </header>
+
+  <dialog id="token-dialog" class="token-dialog">
+    <form id="token-form" method="dialog">
+      <h2>线上保存密钥</h2>
+      <p>填一个能触发 <code>registry-save</code> 工作流的 GitHub 令牌，只存在本浏览器里。</p>
+      <input id="token-input" type="password" autocomplete="off" placeholder="ghp_… 或 github_pat_…">
+      <div class="row-actions">
+        <button type="button" id="token-clear">清空</button>
+        <button type="submit">保存</button>
+      </div>
+    </form>
+  </dialog>
 
   <div id="boot" class="boot">载入中...</div>
   <div id="app" hidden>
@@ -120,8 +133,8 @@
     </section>
   </div>
   <script src="./registry-core.js?v=1"></script>
-  <script src="./dispatch.js?v=1"></script>
+  <script src="./dispatch.js?v=2"></script>
   <script src="./readers.js?v=2"></script>
-  <script src="./id.js?v=16"></script>
+  <script src="./id.js?v=17"></script>
 </body>
 </html>

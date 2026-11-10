@@ -327,12 +327,21 @@ async function postJson(url, payload) {
     throw error;
   }
   const type = response.headers.get("content-type") || "";
+  const text = await response.text();
   if (!type.includes("json")) {
     const error = new Error("offline");
     error.offline = true;
     throw error;
   }
-  return { response, body: await response.json() };
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    const error = new Error("offline");
+    error.offline = true;
+    throw error;
+  }
+  return { response, body };
 }
 
 function splitOp(op) {
@@ -355,17 +364,20 @@ function splitOp(op) {
 
 async function dispatchOp(op) {
   const token = window.REGISTRY_DISPATCH_TOKEN || "";
-  if (!token) throw new Error("没保存上。");
+  if (!token) throw new Error("先点右上角保存线上密钥。");
   const response = await fetch(DISPATCH_URL, {
     method: "POST",
     headers: {
       Accept: "application/vnd.github+json",
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      "X-GitHub-Api-Version": "2022-11-28",
     },
     body: JSON.stringify({ ref: "main", inputs: { op: JSON.stringify(op) } }),
   });
-  if (response.status !== 204) throw new Error("没保存上。");
+  if (response.status === 204) return;
+  if (response.status === 401 || response.status === 403) throw new Error("密钥不对或权限不够。");
+  throw new Error("没保存上。");
 }
 
 async function commitRemote(op) {
@@ -941,7 +953,8 @@ async function runImport() {
   importGo.disabled = true;
   importMsg.textContent = "正在写入...";
   try {
-    const result = await postImport(pendingImport, []);
+    const overwriteIds = pendingImport.map((row) => row.id);
+    const result = await postImport(pendingImport, overwriteIds);
     if (result.queued) render();
     else await reload();
     shownClashes = folderClashes.concat(result.conflicts || []);
@@ -1116,9 +1129,38 @@ zonesEl.addEventListener("submit", (event) => {
   saveZoneBlocks(next, fail);
 });
 
+function mountTokenUi() {
+  const host = location.hostname;
+  const local = host === "127.0.0.1" || host === "localhost";
+  if (local) return;
+  const btn = document.getElementById("token-btn");
+  const dialog = document.getElementById("token-dialog");
+  const input = document.getElementById("token-input");
+  const form = document.getElementById("token-form");
+  if (!btn || !dialog || !input || !form) return;
+  btn.hidden = false;
+  btn.textContent = window.REGISTRY_DISPATCH_TOKEN ? "线上密钥已存" : "线上保存密钥";
+  btn.addEventListener("click", () => {
+    input.value = window.REGISTRY_DISPATCH_TOKEN || "";
+    dialog.showModal();
+  });
+  document.getElementById("token-clear")?.addEventListener("click", () => {
+    saveRegistryDispatchToken("");
+    btn.textContent = "线上保存密钥";
+    input.value = "";
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    saveRegistryDispatchToken(input.value);
+    btn.textContent = window.REGISTRY_DISPATCH_TOKEN ? "线上密钥已存" : "线上保存密钥";
+    dialog.close();
+  });
+}
+
 reload().then(() => {
   boot.hidden = true;
   app.hidden = false;
+  mountTokenUi();
 }).catch(() => {
   boot.textContent = "没打开。";
 });
