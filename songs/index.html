@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>官谱便捷查询</title>
+  <link rel="icon" href="../collect/assets/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./songs.css?v=4">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="top">
+    <a class="mark" href="/collect/"><img class="logo" src="../collect/assets/logo.ico" alt="整理站"></a>
+    <div class="brand">
+      <strong>官谱便捷查询</strong>
+      <em>songs.tools.moortneli4.top</em>
+    </div>
+    <form class="find" role="search">
+      <input id="q" type="search" placeholder="歌名" autocomplete="off" aria-label="搜索歌名">
+    </form>
+  </header>
+
+  <main>
+    <p id="boot" class="boot">载入中...</p>
+    <div id="app" hidden>
+      <div id="filters" class="filters" aria-label="筛选">
+        <div class="line"><span>曲风</span><div class="row" id="genres"></div></div>
+        <div class="line"><span>难度</span><div class="row diffs" id="diffs"></div></div>
+        <div class="line"><span>等级</span><div class="row" id="levels"></div></div>
+        <div class="line"><span>BPM</span><div class="row bpm-range">
+          <button type="button" id="bpm-any" data-bpm-clear="1" aria-pressed="true">不限</button>
+          <label class="bound">从<input id="bpm-min" type="number" inputmode="numeric" min="1" max="999" step="1" aria-label="BPM 下限"></label>
+          <label class="bound">到<input id="bpm-max" type="number" inputmode="numeric" min="1" max="999" step="1" aria-label="BPM 上限"></label>
+        </div></div>
+        <div class="line" id="attr-line" hidden><span>属性</span><div class="row" id="attrs"></div></div>
+        <label class="tick"><input id="removed" type="checkbox"> 含下架</label>
+      </div>
+      <div class="summary">
+        <p id="count" aria-live="polite"></p>
+        <button id="clear" type="button" hidden>清空</button>
+      </div>
+      <div id="list"></div>
+      <button id="more" type="button" hidden>再往下看</button>
+      <p id="empty" class="empty" hidden>没有。</p>
+    </div>
+    <p id="error" class="boot" hidden>没载上。 <button id="retry" type="button">再试一次</button></p>
+  </main>
+  <script src="./songs.js?v=6"></script>
+</body>
+</html>

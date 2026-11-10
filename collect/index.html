@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>中二自制工具整理站</title>
+  <link rel="icon" href="./assets/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./collect.css?v=12">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="top">
+    <a class="brand" href="./">
+      <img class="logo" src="./assets/logo.ico" alt="">
+      <span>
+        <strong>中二自制工具整理站</strong>
+      </span>
+    </a>
+    <form class="find" role="search">
+      <input id="q" type="search" placeholder="搜索工具..." autocomplete="off" aria-label="搜索工具">
+    </form>
+    <button class="header-cuke" id="header-cuke" type="button" aria-label="换一颗黄瓜">
+      <img src="./assets/cuke-1.svg?v=2" alt="">
+    </button>
+  </header>
+
+  <div class="layout">
+    <nav class="cats" aria-label="分类">
+      <button type="button" class="is-on" data-cat="全部">全部</button>
+      <button type="button" data-cat="官谱相关">官谱相关</button>
+      <button type="button" data-cat="自制相关">自制相关</button>
+      <button type="button" data-cat="工具类">工具类</button>
+    </nav>
+    <main>
+      <div id="shelf">
+        <div id="grid" class="grid"></div>
+        <p id="empty" class="empty" hidden>没有。</p>
+      </div>
+      <section id="plugins" hidden>
+        <button id="plugins-back" type="button">回到架子</button>
+        <h2>插件下载</h2>
+        <div id="plugin-list" class="plugin-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <button class="door-cuke" id="door-cuke" type="button" aria-label="打开侧页">
+    <img alt="">
+  </button>
+  <div id="shade" class="shade" hidden></div>
+  <aside id="author" class="author" role="dialog" aria-modal="true" aria-labelledby="author-title" hidden>
+    <button id="author-close" class="seal seal-back" type="button">收回</button>
+    <div class="author-body">
+      <img class="portrait" src="./assets/owner.jpg?v=2" alt="">
+      <p class="who">收集站主人</p>
+      <p class="name" id="author-title">莫特奈利斯</p>
+      <a href="/">回个人站</a>
+      <img class="qr" src="./assets/umiguri-qq.jpg" alt="UMIGURI 交流群二维码，群号 863841531">
+      <p class="group">UMIGURI 交流群</p>
+      <p class="gid">群号 863841531</p>
+    </div>
+  </aside>
+  <script src="./collect.js?v=16"></script>
+</body>
+</html>

@@ -1,40 +1,18 @@
 {
-  "version": "1.0.0",
-  "updatedAt": "2026-07-11",
-  "description": "Asset registry for moortneli4-site. Only processed assets should be referenced by pages.",
+  "version": "2.0.0",
+  "updatedAt": "2026-11-10",
+  "description": "v2 SVG asset library. Character doll still lives in the legacy site.",
+  "style": {
+    "primary": "flat-vector",
+    "borrow": ["cel-boil", "collage"]
+  },
   "entries": [
-    {
-      "id": "logo-main-dark-v1",
-      "path": "assets/images/logo/logo-main-dark-v1.svg",
-      "type": "image",
-      "format": "svg",
-      "usage": "brand",
-      "sizeKB": 0,
-      "owner": "sujun",
-      "updatedAt": "2026-07-11",
-      "status": "placeholder"
-    },
-    {
-      "id": "character-idle-loop-v1",
-      "path": "assets/media/characters/character-idle-loop-v1.webm",
-      "type": "video",
-      "format": "webm",
-      "usage": "character-idle",
-      "sizeKB": 0,
-      "owner": "sujun",
-      "updatedAt": "2026-07-11",
-      "status": "placeholder"
-    },
-    {
-      "id": "scene-links-transition-in-v1",
-      "path": "assets/media/transitions/scene-links-transition-in-v1.webm",
-      "type": "video",
-      "format": "webm",
-      "usage": "scene-transition",
-      "sizeKB": 0,
-      "owner": "sujun",
-      "updatedAt": "2026-07-11",
-      "status": "placeholder"
-    }
+    { "id": "logo", "path": "assets/svg/logo.svg", "type": "image", "format": "svg", "usage": "brand", "status": "active" },
+    { "id": "bg-stage", "path": "assets/svg/bg-stage.svg", "type": "image", "format": "svg", "usage": "background", "status": "active" },
+    { "id": "curtain-closed", "path": "assets/svg/curtain-closed.svg", "type": "image", "format": "svg", "usage": "intro", "status": "active" },
+    { "id": "vinyl", "path": "assets/svg/vinyl.svg", "type": "image", "format": "svg", "usage": "music", "status": "active" },
+    { "id": "cucumber", "path": "assets/svg/cucumber.svg", "type": "image", "format": "svg", "usage": "currency", "status": "active" },
+    { "id": "card-1", "path": "assets/svg/card-1.svg", "type": "image", "format": "svg", "usage": "scene", "status": "active" },
+    { "id": "character-doll", "path": "/legacy/人物素材/", "type": "image", "format": "png", "usage": "character", "status": "legacy-kept" }
   ]
 }

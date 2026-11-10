@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UMIGURI 角色裁切</title>
+  <link rel="icon" href="./logo.png">
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+  <div class="geo" aria-hidden="true">
+    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ffb3df"/>
+          <stop offset="38%" stop-color="#e15cf2"/>
+          <stop offset="100%" stop-color="#4a2c9e"/>
+        </linearGradient>
+      </defs>
+      <rect width="1600" height="900" fill="url(#sky)"/>
+      <g fill="#fff" opacity="0.16">
+        <polygon points="0,0 460,0 160,280"/>
+        <polygon points="460,0 820,70 520,320"/>
+        <polygon points="820,0 1180,0 980,240"/>
+        <polygon points="1180,0 1600,90 1320,260"/>
+        <polygon points="180,280 560,340 300,560"/>
+      </g>
+      <g fill="#2a1468" opacity="0.18">
+        <polygon points="0,280 180,260 40,560"/>
+        <polygon points="300,520 720,600 460,900"/>
+        <polygon points="720,460 1120,400 980,860"/>
+        <polygon points="1120,240 1600,180 1600,640"/>
+        <polygon points="0,620 340,700 0,900"/>
+        <polygon points="1240,640 1600,700 1600,900"/>
+      </g>
+    </svg>
+  </div>
+  <section class="stage">
+    <div class="mast">
+      <img class="logo" src="./logo.png" alt="">
+      <div>
+        <div class="brand">UMIGURI</div>
+        <h1>角色裁切</h1>
+      </div>
+    </div>
+    <div class="rule"></div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab" role="tab" data-page="lg" aria-selected="true">
+        <i class="dot" hidden></i>
+        <span>大立绘</span>
+        <small>1024×1300</small>
+      </button>
+      <button type="button" class="tab" role="tab" data-page="md" aria-selected="false">
+        <i class="dot" hidden></i>
+        <span>横幅</span>
+        <small>420×295</small>
+      </button>
+      <button type="button" class="tab" role="tab" data-page="sm" aria-selected="false">
+        <i class="dot" hidden></i>
+        <span>小头像</span>
+        <small>86×86</small>
+      </button>
+    </div>
+
+    <div class="well" id="well">
+      <div class="stack" id="stack">
+        <div class="frame" id="frame">
+          <canvas id="canvas" aria-label="裁切预览"></canvas>
+          <span class="mark tl"></span>
+          <span class="mark tr"></span>
+          <span class="mark bl"></span>
+          <span class="mark br"></span>
+          <div class="empty" id="empty">
+            <p>先导入一张立绘。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="side-scroll">
+    <button type="button" class="big launch" id="importBtn">导入立绘</button>
+    <p class="filename" id="fileName">还没导入立绘</p>
+
+    <h2><span id="pageTitle">大立绘</span> <small id="pageSize">1024×1300</small></h2>
+
+    <div class="own-box" id="ownBox">
+      <label class="tick">
+        <input type="checkbox" id="ownCheck">
+        <span>单独用图</span>
+      </label>
+      <p id="ownState"></p>
+      <button type="button" class="slim" id="ownReplace" hidden>更换这张图</button>
+    </div>
+
+    <label class="tick vignette" id="vignetteRow">
+      <input type="checkbox" id="vignetteCheck" checked>
+      <span>边缘淡出</span>
+    </label>
+
+    <div class="bg-box" id="bgBox" hidden>
+      <label class="tick">
+        <input type="checkbox" id="bgCheck">
+        <span>给横幅加背景</span>
+      </label>
+      <p id="bgState"></p>
+      <div class="seg" id="bgSeg" hidden>
+        <button type="button" id="editChar" aria-pressed="true">摆角色</button>
+        <button type="button" id="editBg" aria-pressed="false">摆背景</button>
+      </div>
+      <button type="button" class="slim" id="bgReplace" hidden>更换背景</button>
+    </div>
+
+    <button type="button" class="slim" id="resetBtn">重置这一页</button>
+
+    <div class="fields">
+      <label class="field">
+        <span>角色文件夹</span>
+        <input id="character" type="text" maxlength="80" spellcheck="false" placeholder="UMIGURI" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>皮肤文件夹</span>
+        <input id="variant" type="text" maxlength="80" spellcheck="false" placeholder="uni" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>称呼</span>
+        <input id="variation" type="text" maxlength="40" spellcheck="false" value="うに" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>画师</span>
+        <input id="credit" type="text" maxlength="40" spellcheck="false" value="inonote" autocomplete="off">
+      </label>
+    </div>
+    </div>
+
+    <button type="button" class="big yes" id="exportBtn" disabled>导出压缩包</button>
+    <p class="saved" id="savedLine"></p>
+  </aside>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="./app.js"></script>
+</body>
+</html>

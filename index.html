@@ -2,21 +2,105 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>莫特奈利斯 | 个人网站</title>
-  <meta name="description" content="莫特奈利斯个人网站入口页。">
-  <meta http-equiv="refresh" content="0; url=./prototype-left-menu.html">
-  <script>
-    (function () {
-      window.location.replace("./prototype-left-menu.html");
-    }());
-  </script>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; padding: 24px; }
-    a { color: #389e6b; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>莫特奈利斯 | 个人网站 v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=26">
 </head>
 <body>
-  <p>正在进入网站首页… 若未自动跳转，请点击 <a href="./prototype-left-menu.html">这里</a>。</p>
+  <div id="paper-grain" aria-hidden="true"></div>
+  <div id="stage-root" class="stage-root">
+    <img class="bg-stage" src="./assets/drawn/stage.svg" alt="" aria-hidden="true">
+    <div id="curtain" class="curtain" aria-hidden="true">
+      <img class="curtain-half left" src="./assets/drawn/curtain-closed.svg" alt="">
+      <img class="curtain-half right" src="./assets/drawn/curtain-closed.svg" alt="">
+      <span class="curtain-slit"></span>
+    </div>
+
+    <div id="title-splash" class="title-splash" tabindex="0" role="button" aria-label="拉开幕布">
+      <h1>莫特奈利斯<br>个人网站</h1>
+      <p>点一下，幕布拉开</p>
+    </div>
+
+    <div id="beg-modal" class="beg-modal" hidden>
+      <div class="beg-card" role="dialog" aria-modal="true" aria-labelledby="beg-line">
+        <p class="beg-face" id="beg-face"></p>
+        <p class="beg-line" id="beg-line">站主吃不起饭了</p>
+        <button id="beg-close" type="button">知道了</button>
+      </div>
+    </div>
+
+    <div class="app">
+      <div id="cucumber-layer" class="cucumber-layer" aria-hidden="true"></div>
+      <header class="topbar">
+        <button id="header-cuke" class="header-cuke" type="button" aria-label="换一颗黄瓜">
+          <img src="/collect/assets/cuke-1.svg?v=2" alt="">
+        </button>
+        <form id="search-wrap" class="search-wrap" role="search">
+          <img id="search-bar" class="search-bar" src="./assets/drawn/search.svg" alt="">
+          <input id="stage-search" type="search" placeholder="搜索..." aria-label="搜索菜单、谱面和工具" autocomplete="off">
+        </form>
+        <div id="currency" class="currency">
+          <img class="currency-bar" src="./assets/drawn/currency.svg" alt="黄瓜货币">
+          <img class="currency-cuke" src="./assets/drawn/cuke-e.svg" alt="">
+          <span id="currency-count">0</span>
+          <button id="currency-add" type="button" aria-label="补给">
+            <img src="./assets/drawn/plus.svg" alt="">
+          </button>
+        </div>
+      </header>
+
+      <div class="board">
+        <section class="player" aria-label="唱片">
+          <div id="turntable" class="turntable">
+            <img class="vinyl" src="./assets/drawn/vinyl.svg" alt="唱片">
+            <img id="vinyl-cover" class="vinyl-cover" src="/legacy/歌单/大耳朵睦睦.jpg" alt="">
+            <button id="cover-hotspot" type="button" aria-label="唱片交互"></button>
+          </div>
+          <div id="tt-controls" class="player-controls">
+            <div class="player-buttons">
+              <button id="play-btn" type="button">播放</button>
+              <button id="next-btn" type="button">下一首</button>
+            </div>
+          </div>
+          <audio id="bg-audio" preload="auto" playsinline></audio>
+        </section>
+
+        <nav class="side-nav" aria-label="节目">
+          <p class="col-kicker">节目</p>
+          <ul id="menu-list" class="menu-list"></ul>
+        </nav>
+
+        <main class="program">
+          <article id="scene-card" class="scene-card" aria-live="polite">
+            <header class="program-head">
+              <p class="col-kicker">本场</p>
+              <h2 id="card-title">-</h2>
+            </header>
+            <div id="card-body" class="card-body"></div>
+          </article>
+        </main>
+
+        <aside class="wing">
+          <div class="performer" data-glow="sun" aria-label="舞台">
+            <div class="performer-drape left"></div>
+            <div class="performer-drape right"></div>
+            <div class="stage-lights" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div id="character-stage" class="character-stage">
+              <img id="character-sprite" class="character-sprite" alt="睦头">
+            </div>
+            <div class="performer-deck">
+              <span class="deck-top"></span>
+              <span class="deck-leg"></span>
+              <span class="deck-leg right"></span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+  <script src="./app.js?v=24"></script>
 </body>
 </html>

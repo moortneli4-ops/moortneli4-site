@@ -1,36 +1,28 @@
-# moortneli4-site
+# 莫特奈利斯个人站 v2
 
-个人网站首版模板（作品集风），用于 GitHub Pages 临时上线。
+新站点目录，不覆盖 `moortneli4-site`。
 
-## 当前结构
+主风格是**扁平矢量**：纯色几何、弹性缓动、五色板。  
+手绘只借 **line boil + 纸纹**；剪贴只借 **白描边、胶带、半调、轻微旋转**。  
+右侧小人偶仍读取旧站 `人物素材/`，其余 UI 全部换成 SVG。
 
-- `index.html` 入口页（自动跳转到 `prototype-left-menu.html`）
-- `styles.css` 页面样式
-- `script.js` 页脚年份脚本
-- `prototype-left-menu.html/.css/.js` 当前主交互页面
-- `server.js` 本地/服务器一体化静态服务 + DeepSeek 代理 API（隐藏 key）
+## 栏目
 
-## 本地启动（含聊天后端）
+- 欢迎光临
+- 自制谱工具集成站（原自制谱 / 小工具下载 / 私密内容合并后的下载枢纽）
+- 其他工具网站收集
+- 与睦头尬聊
+- 关于我
 
-1. 复制环境变量模板：
-   - Windows PowerShell:
-     - `Copy-Item .env.example .env`
-2. 编辑 `.env`，填入真实 `DEEPSEEK_API_KEY`
-3. 启动服务：
-   - `node server.js`
-4. 浏览器打开：
-   - `http://127.0.0.1:8787`
+## 本地启动
 
-> 聊天前端会请求 `/api/chat`，由 `server.js` 代为访问 DeepSeek，前端不再暴露 key。
+```powershell
+cd C:\Users\Sujun\Desktop\sjtu-agent-main\moortneli4-site-v2
+Copy-Item .env.example .env
+# 把 DEEPSEEK_API_KEY 填进 .env；也可沿用旧站 .env
+node server.js
+```
 
-## GitHub Pages 入口说明
+浏览器打开：http://127.0.0.1:8788
 
-- Pages 默认访问根路径时会打开 `index.html`。
-- 当前 `index.html` 已自动跳转到 `prototype-left-menu.html`，可直接作为线上入口。
-- 若仅使用静态 Pages（无后端），聊天功能不会访问私有 API，建议搭配独立后端代理。
-
-## 下一步
-
-1. 替换各区块占位文案为真实内容
-2. 新增 `assets/` 放图片与附件
-3. 通过 GitHub Pages 分支发布上线
+`/legacy/` 会映射到旁边的旧站目录，用来读小人偶、音效、谱包和工具 zip。

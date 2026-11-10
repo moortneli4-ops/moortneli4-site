@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>自制谱 ID 登记</title>
+  <link rel="icon" href="../collect/assets/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./id.css?v=10">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="top">
+    <a class="mark" href="/collect/"><img class="logo" src="../collect/assets/logo.ico" alt="整理站"></a>
+    <div class="brand">
+      <strong>自制谱 ID 登记</strong>
+      <em>id.tools.moortneli4.top</em>
+    </div>
+    <form class="find" role="search">
+      <input id="q" type="search" placeholder="搜 ID、曲名、谱师、说明..." autocomplete="off" aria-label="搜索登记">
+    </form>
+  </header>
+
+  <div id="boot" class="boot">载入中...</div>
+  <div id="app" hidden>
+    <section class="stats" id="stats" aria-label="总览"></section>
+    <nav class="pages" aria-label="页面">
+      <button type="button" data-page="import">快速登记</button>
+      <button type="button" data-page="list" class="is-on">总览列表</button>
+      <button type="button" data-page="zones">预选分区</button>
+    </nav>
+
+    <section id="page-list" class="sheet">
+      <div class="toolbar">
+        <label>从 <input id="from" inputmode="numeric" aria-label="起始 ID"></label>
+        <label>到 <input id="to" inputmode="numeric" aria-label="结束 ID"></label>
+        <button id="range-go" type="button">看这段</button>
+        <label class="show-empty"><input id="show-empty" type="checkbox"> <span id="show-empty-label">显示空置</span></label>
+        <label class="show-empty"><input id="show-official" type="checkbox"> <span id="show-official-label">显示官谱</span></label>
+        <p id="view-label"></p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>占用</th>
+              <th>曲名</th>
+              <th>谱师</th>
+              <th>作谱</th>
+              <th>转谱</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p id="table-empty" class="empty" hidden>这里是空的。</p>
+    </section>
+
+    <section id="page-import" class="sheet import-page" hidden>
+      <div class="reg-block">
+        <h2>手动登记</h2>
+        <form id="entry" class="entry-bar">
+          <label>ID <input id="f-id" inputmode="numeric" required aria-label="歌曲 ID"></label>
+          <label>占用
+            <select id="f-status">
+              <option value="">先空着</option>
+              <option>空置</option>
+              <option>官谱</option>
+              <option>WE</option>
+              <option>自制紫</option>
+              <option>自制红</option>
+              <option>自制黑</option>
+              <option>自制WE</option>
+              <option>自制紫/黑</option>
+            </select>
+          </label>
+          <label>曲名 <input id="f-title" autocomplete="off"></label>
+          <label>谱师 <input id="f-charter" autocomplete="off"></label>
+          <label>作谱
+            <select id="f-chart">
+              <option value="">先空着</option>
+              <option>已完成</option>
+              <option>未完成</option>
+            </select>
+          </label>
+          <label>转谱
+            <select id="f-convert">
+              <option value="">先空着</option>
+              <option>已完成</option>
+              <option>未完成</option>
+            </select>
+          </label>
+          <label>说明 <textarea id="f-note" rows="2"></textarea></label>
+          <p id="form-msg" class="msg"></p>
+          <div id="save-conflict" class="clash" hidden></div>
+          <div class="actions">
+            <button type="submit">写入这行</button>
+            <button id="form-clear" type="button">清空</button>
+          </div>
+        </form>
+      </div>
+      <div class="reg-block">
+        <h2>快速导入</h2>
+        <label class="file-btn">选择谱面文件夹
+          <input id="folder" type="file" webkitdirectory directory multiple>
+        </label>
+        <p id="import-msg" class="msg"></p>
+        <div id="import-list" class="preview-wrap"></div>
+        <button id="import-go" type="button" disabled>确认导入</button>
+        <div id="conflicts"></div>
+      </div>
+    </section>
+
+    <section id="page-zones" class="sheet zones-page" hidden>
+      <div id="zones"></div>
+    </section>
+  </div>
+  <script src="./readers.js?v=2"></script>
+  <script src="./id.js?v=15"></script>
+</body>
+</html>
