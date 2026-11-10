@@ -1,0 +1,1 @@
+window.REGISTRY_DISPATCH_TOKEN = "";

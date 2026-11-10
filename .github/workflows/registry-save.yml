@@ -1,0 +1,44 @@
+name: Save ID registry
+
+on:
+  workflow_dispatch:
+    inputs:
+      op:
+        description: One registry operation
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: registry-save
+  cancel-in-progress: false
+
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout registry
+        uses: actions/checkout@v4
+        with:
+          ref: registry
+          path: live
+      - name: Checkout apply script
+        uses: actions/checkout@v4
+        with:
+          path: site
+      - name: Apply
+        env:
+          OP: ${{ toJSON(inputs.op) }}
+          REGISTRY_FILE: ${{ github.workspace }}/live/id-registry.json
+        run: node site/.github/apply-registry.js
+      - name: Commit
+        working-directory: live
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add id-registry.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Update the ID registry"
+          git push

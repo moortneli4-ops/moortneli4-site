@@ -311,18 +311,108 @@ function renderZones() {
   zonesEl.innerHTML = parts.join("");
 }
 
-async function saveZoneBlocks(blocks, fail) {
-  const response = await fetch("/api/ids/reserves", {
+const REGISTRY_RAW = "https://raw.githubusercontent.com/moortneli4-ops/moortneli4-site/registry/id-registry.json";
+const DISPATCH_URL = "https://api.github.com/repos/moortneli4-ops/moortneli4-site/actions/workflows/registry-save.yml/dispatches";
+
+async function postJson(url, payload) {
+  let response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    error.offline = true;
+    throw error;
+  }
+  const type = response.headers.get("content-type") || "";
+  if (!type.includes("json")) {
+    const error = new Error("offline");
+    error.offline = true;
+    throw error;
+  }
+  return { response, body: await response.json() };
+}
+
+function splitOp(op) {
+  if (op.type !== "import") return [op];
+  const overwriteIds = op.overwriteIds || [];
+  const batches = [];
+  let batch = [];
+  for (const entry of op.entries || []) {
+    const candidate = { type: "import", entries: batch.concat([entry]), overwriteIds };
+    if (batch.length && JSON.stringify(candidate).length > 12000) {
+      batches.push({ type: "import", entries: batch, overwriteIds });
+      batch = [entry];
+    } else {
+      batch.push(entry);
+    }
+  }
+  if (batch.length || !batches.length) batches.push({ type: "import", entries: batch, overwriteIds });
+  return batches;
+}
+
+async function dispatchOp(op) {
+  const token = window.REGISTRY_DISPATCH_TOKEN || "";
+  if (!token) throw new Error("没保存上。");
+  const response = await fetch(DISPATCH_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ reserves: reservesFromBlocks(blocks) }),
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ ref: "main", inputs: { op: JSON.stringify(op) } }),
   });
-  const body = await response.json();
+  if (response.status !== 204) throw new Error("没保存上。");
+}
+
+async function commitRemote(op) {
+  const clone = structuredClone(registry);
+  const result = RegistryCore.apply(clone, op);
+  if (result.status >= 400) return { response: { ok: false, status: result.status }, body: result.body };
+  if (result.changed) {
+    const parts = splitOp(op);
+    for (const part of parts) {
+      if (JSON.stringify(part).length > 60000) throw new Error("没保存上。");
+      await dispatchOp(part);
+    }
+    registry = clone;
+    indexEntries();
+  }
+  return { response: { ok: true, status: 200 }, body: result.body, queued: result.changed };
+}
+
+async function saveZoneBlocks(blocks, fail) {
+  const reserves = reservesFromBlocks(blocks);
+  let response;
+  let body;
+  let queued = false;
+  try {
+    const local = await postJson("/api/ids/reserves", { reserves });
+    response = local.response;
+    body = local.body;
+  } catch (error) {
+    if (!error.offline) {
+      if (fail) fail.textContent = "编辑失败";
+      return;
+    }
+    try {
+      const remote = await commitRemote({ type: "reserves", reserves });
+      response = remote.response;
+      body = remote.body;
+      queued = !!remote.queued;
+    } catch (remoteError) {
+      if (fail) fail.textContent = remoteError.message || "没保存上。";
+      return;
+    }
+  }
   if (!response.ok) {
     if (fail) fail.textContent = body.error || "编辑失败";
     return;
   }
-  registry.reserves = body.reserves;
+  if (!queued) registry.reserves = body.reserves;
   zoneLock = null;
   renderZones();
 }
@@ -501,12 +591,28 @@ function detail(row) {
 }
 
 async function saveEntry(entry, overwrite) {
-  const response = await fetch("/api/ids", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ entry, overwrite }),
-  });
-  const body = await response.json();
+  let response;
+  let body;
+  let queued = false;
+  try {
+    const local = await postJson("/api/ids", { entry, overwrite });
+    response = local.response;
+    body = local.body;
+  } catch (error) {
+    if (!error.offline) {
+      formMsg.textContent = "没写上";
+      return;
+    }
+    try {
+      const remote = await commitRemote({ type: "save", entry, overwrite: !!overwrite });
+      response = remote.response;
+      body = remote.body;
+      queued = !!remote.queued;
+    } catch (remoteError) {
+      formMsg.textContent = remoteError.message || "没保存上。";
+      return;
+    }
+  }
   if (response.status === 409) {
     pendingManual = entry;
     saveConflict.hidden = false;
@@ -530,7 +636,9 @@ async function saveEntry(entry, overwrite) {
   indexEntries();
   saveConflict.hidden = true;
   pendingManual = null;
-  formMsg.textContent = `已写入 ${body.entry.id}`;
+  formMsg.textContent = queued
+    ? `已提交 ${body.entry.id}，大约一分钟后写进仓库。马上刷新可能还是旧的。`
+    : `已写入 ${body.entry.id}`;
   render();
 }
 
@@ -794,24 +902,33 @@ function renderClashes() {
 }
 
 async function postImport(entries, overwriteIds) {
-  const response = await fetch("/api/ids/import", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ entries, overwriteIds }),
-  });
-  const body = await response.json();
-  if (!response.ok) throw new Error(body.error || "导入失败");
-  return body;
+  try {
+    const local = await postJson("/api/ids/import", { entries, overwriteIds });
+    if (!local.response.ok) throw new Error(local.body.error || "导入失败");
+    return local.body;
+  } catch (error) {
+    if (!error.offline && !(error instanceof TypeError)) throw error;
+    const remote = await commitRemote({ type: "import", entries, overwriteIds });
+    if (!remote.response.ok) throw new Error(remote.body.error || "导入失败");
+    return { ...remote.body, queued: !!remote.queued };
+  }
 }
 
 async function reload() {
   let payload = null;
   try {
-    const response = await fetch("/api/ids");
-    if (response.ok) payload = await response.json();
+    const response = await fetch("/api/ids", { cache: "no-store" });
+    const type = response.headers.get("content-type") || "";
+    if (response.ok && type.includes("json")) payload = await response.json();
   } catch {}
   if (!payload) {
-    const response = await fetch("/data/id-registry.json");
+    try {
+      const response = await fetch(`${REGISTRY_RAW}?t=${Date.now()}`, { cache: "no-store" });
+      if (response.ok) payload = await response.json();
+    } catch {}
+  }
+  if (!payload) {
+    const response = await fetch("/data/id-registry.json", { cache: "no-store" });
     if (!response.ok) throw new Error("没打开。");
     payload = await response.json();
   }
@@ -825,11 +942,12 @@ async function runImport() {
   importMsg.textContent = "正在写入...";
   try {
     const result = await postImport(pendingImport, []);
-    await reload();
+    if (result.queued) render();
+    else await reload();
     shownClashes = folderClashes.concat(result.conflicts || []);
     folderClashes = [];
     pendingImport = [];
-    importMsg.textContent = `新写入 ${result.applied} 条，本来就一样的 ${result.same} 条，对不上 ${shownClashes.length} 条。`;
+    importMsg.textContent = `新写入 ${result.applied} 条，本来就一样的 ${result.same} 条，对不上 ${shownClashes.length} 条。${result.queued ? "大约一分钟后写进仓库，马上刷新可能还是旧的。" : ""}`;
     renderPreview();
     renderClashes();
   } catch (error) {
@@ -848,10 +966,11 @@ async function takeClash(index, side) {
   }
   const chosen = side === "existing" ? clash.existing : clash.incoming;
   const result = await postImport([{ ...chosen, file: clash.file }], [clash.id]);
-  await reload();
+  if (!result.queued) await reload();
+  else render();
   const leftover = result.conflicts || [];
   shownClashes.splice(index, 1, ...leftover);
-  importMsg.textContent = leftover.length ? "这份还是没盖上。" : `已按你的选择写入 ${clash.id}`;
+  importMsg.textContent = leftover.length ? "这份还是没盖上。" : `已按你的选择写入 ${clash.id}${result.queued ? "，大约一分钟后写进仓库。" : ""}`;
   renderClashes();
 }
 
