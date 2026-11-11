@@ -53,6 +53,16 @@ const tools = [
     state: "可打开",
   },
   {
+    id: "margrete-rpc",
+    name: "Margrete RPC",
+    cat: "自制相关",
+    blurb: "用 Python 程序化编辑 UMIGURI / Margrete 谱面。",
+    host: "mg.foahh.com",
+    href: "https://mg.foahh.com/",
+    icon: "./assets/mg-foahh.ico",
+    state: "可打开",
+  },
+  {
     id: "penguin-tools",
     name: "企鹅工具站",
     cat: "工具类",
@@ -133,8 +143,10 @@ function renderPlugins() {
 
 function showPlugins(on) {
   shelf.hidden = on;
-  document.querySelector(".cats").hidden = on;
-  document.querySelector(".lead").hidden = on;
+  const cats = document.querySelector(".cats");
+  const lead = document.querySelector(".lead");
+  if (cats) cats.hidden = on;
+  if (lead) lead.hidden = on;
   pluginPage.hidden = !on;
   const next = on ? "#plugins" : location.pathname + location.search;
   if ((on && location.hash !== "#plugins") || (!on && location.hash === "#plugins")) {
