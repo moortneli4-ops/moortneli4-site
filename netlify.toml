@@ -1,0 +1,30 @@
+[build]
+  publish = "netlify-public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/ids"
+  to = "/.netlify/functions/ids"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/ids/import"
+  to = "/.netlify/functions/ids-import"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/ids/reserves"
+  to = "/.netlify/functions/ids-reserves"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/ids/replace"
+  to = "/.netlify/functions/ids-replace"
+  status = 200
+  force = true

@@ -312,7 +312,6 @@ function renderZones() {
 }
 
 const REGISTRY_RAW = "https://raw.githubusercontent.com/moortneli4-ops/moortneli4-site/registry/id-registry.json";
-const SNAPSHOT_MANIFEST = "/data/backups/manifest.json";
 
 function apiUrl(path) {
   const base = (window.REGISTRY_API_BASE || "").replace(/\/$/, "");
@@ -362,7 +361,7 @@ function adoptRegistryIfPresent(body) {
 
 function remoteSaveError(error) {
   if (error && error.offline) {
-    return "线上登记 API 暂时连不上。若你是站长，请先部署 workers/registry-api 或在本机跑 server.js。";
+    return "线上登记 API 暂时连不上。正式站走 Netlify（moortneli4-id-api.netlify.app），本机可跑 server.js。";
   }
   return error && error.message ? error.message : "没保存上。";
 }
@@ -394,8 +393,6 @@ function applyScreen() {
   document.getElementById("page-list").hidden = screen !== "list";
   document.getElementById("page-import").hidden = screen !== "import";
   document.getElementById("page-zones").hidden = screen !== "zones";
-  const snapPage = document.getElementById("page-snapshots");
-  if (snapPage) snapPage.hidden = screen !== "snapshots";
   document.querySelectorAll(".pages button").forEach((button) => {
     button.classList.toggle("is-on", button.dataset.page === screen);
   });
@@ -514,7 +511,6 @@ function render() {
   applyScreen();
   if (screen === "list") renderTable();
   if (screen === "zones" && zoneLock == null) renderZones();
-  if (screen === "snapshots") renderSnapshots();
 }
 
 function setField(id, value) {
@@ -1081,60 +1077,6 @@ zonesEl.addEventListener("submit", (event) => {
   saveZoneBlocks(next, fail);
 });
 
-let snapshotManifest = null;
-
-async function loadSnapshotManifest() {
-  try {
-    const response = await fetch(`${SNAPSHOT_MANIFEST}?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) return { snapshots: [] };
-    return await response.json();
-  } catch {
-    return { snapshots: [] };
-  }
-}
-
-function renderSnapshots() {
-  const el = document.getElementById("snapshots");
-  if (!el) return;
-  const list = (snapshotManifest && snapshotManifest.snapshots) || [];
-  if (!list.length) {
-    el.innerHTML = "<p class=\"msg\">还没有周备份。GitHub 每周日会自动留一份，可在这里下载或整表回档。</p>";
-    return;
-  }
-  el.innerHTML = `<p class="msg">每周总表备份，用来下载或整表回档（会覆盖当前线上表，请先确认）。</p>
-    <ul class="snapshot-list">${list.map((row) => {
-      const file = row.path ? `/data/${row.path.replace(/^\/?data\//, "")}` : `/data/backups/id-registry-${row.id}.json`;
-      return `<li>
-      <span>${esc(row.id)}</span>
-      <span>${row.entries ?? "?"} 条</span>
-      <a href="${file}">下载</a>
-      <button type="button" data-restore="${esc(row.id)}">整表回档</button>
-    </li>`;
-    }).join("")}</ul>`;
-}
-
-async function restoreSnapshot(id) {
-  const snap = ((snapshotManifest && snapshotManifest.snapshots) || []).find((row) => row.id === id);
-  if (!snap) return;
-  const path = snap.path ? `/data/${snap.path.replace(/^data\//, "")}` : `/data/backups/id-registry-${id}.json`;
-  const ok = window.confirm(`把整表回档到 ${id}？这会覆盖当前线上登记，其他人也会看到。`);
-  if (!ok) return;
-  const msg = document.getElementById("snapshot-msg");
-  if (msg) msg.textContent = "正在回档…";
-  try {
-    const response = await fetch(path, { cache: "no-store" });
-    if (!response.ok) throw new Error("读备份失败");
-    const payload = await response.json();
-    const result = await postJson("/api/ids/replace", { registry: payload });
-    if (!result.response.ok) throw new Error(result.body.error || "回档失败");
-    adoptRegistryIfPresent(result.body);
-    await reload({ soft: true });
-    if (msg) msg.textContent = `已回档到 ${id}。`;
-  } catch (error) {
-    if (msg) msg.textContent = remoteSaveError(error);
-  }
-}
-
 function startRegistrySync() {
   syncStamp = registry && registry.updated ? registry.updated : "";
   window.setInterval(async () => {
@@ -1154,18 +1096,10 @@ function startRegistrySync() {
   }, 20000);
 }
 
-reload().then(async () => {
+reload().then(() => {
   boot.hidden = true;
   app.hidden = false;
-  snapshotManifest = await loadSnapshotManifest();
-  renderSnapshots();
   startRegistrySync();
 }).catch(() => {
   boot.textContent = "没打开。";
-});
-
-document.getElementById("snapshots")?.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-restore]");
-  if (!button) return;
-  restoreSnapshot(button.dataset.restore);
 });
