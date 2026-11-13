@@ -33,6 +33,16 @@ const tools = [
     state: "可打开",
   },
   {
+    id: "chunithm-constants",
+    name: "CHUNITHM 定数时光机",
+    cat: "官谱相关",
+    blurb: "按日期和版本看官谱定数变迁，可筛 EXP / MAS / ULT。",
+    host: "incimathcal.github.io",
+    href: "https://incimathcal.github.io/chunithm-constants/",
+    icon: "./assets/chunithm-constants.png",
+    state: "可打开",
+  },
+  {
     id: "chart-id",
     name: "自制谱 ID 登记",
     cat: "自制相关",
