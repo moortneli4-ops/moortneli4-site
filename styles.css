@@ -298,18 +298,23 @@ body:not(.awake) .search-wrap { opacity: 0; transform: translateY(-16px); }
 .player {
   grid-area: player;
   position: relative;
+  z-index: 5;
   align-self: end;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: flex-end;
   gap: 8px;
-  padding: 4px 4px 0;
+  padding: 0;
+  overflow: visible;
 }
 .turntable {
   position: relative;
-  width: min(168px, 34vh);
+  width: min(430px, 52vh);
   aspect-ratio: 1;
+  margin-left: -148px;
+  margin-bottom: -96px;
   transition: opacity 400ms, transform 640ms cubic-bezier(0.16, 0.84, 0.24, 1);
 }
 body:not(.awake) .turntable { opacity: 0; transform: translateY(16px); }
@@ -318,27 +323,19 @@ body:not(.awake) .turntable { opacity: 0; transform: translateY(16px); }
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: visible;
+}
+.vinyl-spin {
+  transform-box: fill-box;
+  transform-origin: center;
   animation: spin 5.5s linear infinite;
 }
-.vinyl-cover {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 39%;
-  height: 39%;
-  object-fit: cover;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: spin-c 5.5s linear infinite;
-  box-shadow: inset 0 0 0 8px rgba(20, 10, 8, 0.28);
-}
-.vinyl-cover.swap { animation: spin-c 5.5s linear infinite, cover-flash 280ms steps(4, end); }
+.vinyl-cover.swap { animation: cover-flash 280ms steps(4, end); }
 @keyframes cover-flash {
   40% { filter: saturate(1.45) contrast(1.2); }
 }
-.turntable.paused .vinyl, .turntable.paused .vinyl-cover { animation-play-state: paused; }
+.turntable.paused .vinyl-spin { animation-play-state: paused; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes spin-c { to { transform: translate(-50%, -50%) rotate(360deg); } }
 #cover-hotspot {
   position: absolute;
   inset: 8%;
@@ -348,8 +345,9 @@ body:not(.awake) .turntable { opacity: 0; transform: translateY(16px); }
 }
 .player-controls {
   position: relative;
-  z-index: 4;
-  width: 100%;
+  z-index: 6;
+  width: min(220px, 100%);
+  margin-left: 12px;
   display: grid;
   gap: 8px;
 }
@@ -375,6 +373,8 @@ body:not(.awake) .turntable { opacity: 0; transform: translateY(16px); }
 
 .side-nav {
   grid-area: nav;
+  position: relative;
+  z-index: 6;
   min-width: 0;
   align-self: start;
   padding: 4px 2px 0 0;
@@ -487,24 +487,10 @@ body:not(.awake) .scene-card { opacity: 0; transform: translateY(18px) rotate(-2
   border: 4px solid var(--ink);
   box-shadow: 8px 8px 0 var(--ink);
 }
-.welcome-poster::before {
-  content: "";
-  position: absolute;
-  right: 16px;
-  bottom: 14px;
-  width: 72px;
-  height: 72px;
-  border: 3px solid var(--moss);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, var(--moss) 0 7px, transparent 8px),
-    repeating-conic-gradient(from 12deg, var(--moss) 0 8deg, transparent 8deg 20deg);
-  opacity: 0.9;
-}
 .card-body .welcome-poster p {
   position: relative;
   z-index: 1;
-  max-width: 78%;
+  max-width: none;
   margin: 0;
   font-family: "ZCOOL KuaiLe", sans-serif;
   font-size: clamp(24px, 2.1vw, 32px);
@@ -844,6 +830,80 @@ body:not(.awake) .character-stage { opacity: 0; }
   padding: 6px 12px;
   cursor: pointer;
 }
+.card-body:has(.welcome-layout),
+.card-body:has(.scene-stack) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.welcome-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.welcome-layout .welcome-poster { margin-bottom: 14px; }
+.welcome-split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+.welcome-side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.welcome-side .toy-row {
+  margin: 0;
+  grid-template-columns: minmax(108px, 42%) minmax(0, 1fr);
+}
+.welcome-side #reload-btn {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 96px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  font-size: clamp(26px, 2.4vw, 40px);
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.welcome-side #reload-btn:hover { background: #fff6b0; }
+.welcome-l2d {
+  position: relative;
+  min-width: 0;
+  min-height: 280px;
+  overflow: hidden;
+}
+.welcome-l2d canvas,
+.scene-l2d canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.scene-stack {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.scene-stack .pair,
+.scene-stack .about-sheet { flex: none; }
+.scene-l2d {
+  position: relative;
+  flex: 1;
+  min-height: 260px;
+  overflow: hidden;
+}
 
 .card-body:has(.chat-panel) { display: flex; flex-direction: column; }
 .chat-panel { display: grid; grid-template-rows: 1fr auto auto; flex: 1; min-height: 240px; gap: 8px; }
@@ -990,16 +1050,23 @@ body:not(.awake) .currency { opacity: 0; transform: scale(0.86) translateY(-20px
     height: auto;
     align-self: center;
   }
-  .turntable { width: 160px; }
+  .turntable { width: 200px; margin: 0; }
+  .player { align-items: center; }
   .side-nav { order: 1; overflow: visible; width: 100%; }
   .menu-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
   .menu-item { flex: 0 0 168px; }
   .program { order: 2; min-height: 460px; }
   .scene-card { min-height: 460px; }
+  .card-body:has(.welcome-layout),
+  .card-body:has(.scene-stack) { overflow: visible; }
+  .welcome-split { grid-template-columns: 1fr; }
+  .welcome-side #reload-btn { flex: none; min-height: 84px; }
+  .welcome-l2d { height: 380px; min-height: 380px; }
+  .scene-l2d { height: 340px; min-height: 340px; flex: none; }
   .toy-row { grid-template-columns: 1fr; }
   .pair { grid-template-columns: 1fr; }
   .card-body .pair-btn { min-height: 180px; font-size: 26px; }
-  .welcome-poster::before, .about-sheet::after { display: none; }
+  .about-sheet::after { display: none; }
   .card-body .welcome-poster p { max-width: none; }
   .wing { order: 3; width: 100%; }
   .player { order: 4; }
@@ -1011,6 +1078,6 @@ body:not(.awake) .currency { opacity: 0; transform: scale(0.86) translateY(-20px
     animation: none !important;
     transition: none !important;
   }
-  .vinyl, .vinyl-cover { animation: spin 5.5s linear infinite !important; }
-  .turntable.paused .vinyl, .turntable.paused .vinyl-cover { animation-play-state: paused !important; }
+  .vinyl-spin { animation: spin 5.5s linear infinite !important; }
+  .turntable.paused .vinyl-spin { animation-play-state: paused !important; }
 }

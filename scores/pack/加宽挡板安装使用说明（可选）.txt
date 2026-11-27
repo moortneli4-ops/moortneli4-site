@@ -1,0 +1,86 @@
+Phylaxron 自定义挡板说明
+========================
+
+装好以后，打 Phylaxron 时音符上面的挡板会换成宽的。
+其他歌还是原来的挡板。
+
+要做三件事：放谱包、放插件、改 start.bat。
+三件都做完，再用 start.bat 开游戏。不要直接双击 chusanApp.exe。
+
+
+一、谱包放哪
+------------
+
+这个数据包的文件夹名字是 AMTS。
+整个放进 bin\option\，不要拆开，也不要改里面的层数。
+
+放好以后，Phylaxron 是这样：
+
+bin\option\AMTS\music\music9978\
+bin\option\AMTS\cueFile\cueFile009978\
+bin\option\AMTS\stage\stage1009978\
+bin\option\AMTS\event\event01009978\
+bin\option\AMTS\ddsFieldWall\ddsFieldWall9978\DDSFieldWall.xml
+bin\option\AMTS\ddsFieldWall\ddsFieldWall9978\CHU_UI_Fieldwall_9978.dds
+
+挡板已经在这个谱包里，不用再单独挪。
+中间必须有 ddsFieldWall 这一层。
+不要把 ddsFieldWall9978 直接放在 AMTS 根目录，那样少了一层，游戏读不到。
+
+也不要放进 data\A000。
+
+文件夹名、xml 里的编号、图片文件名，三个必须是同一个号。
+Phylaxron 这个号是 9978。
+
+
+二、插件放哪
+------------
+
+AMTS 根目录里的 wallbind.dll 就是挡板插件。
+
+把它复制到 bin 文件夹，和下面两个文件放在一起：
+
+bin\chusanApp.exe
+bin\start.bat
+bin\wallbind.dll
+
+谱包里这份只是附带的。游戏启动时读的是 bin 里那一份。
+放错地方的话，启动时找不到插件，挡板不会换。
+
+
+三、怎么改 start.bat
+-------------------
+
+1. 用记事本打开 bin\start.bat。
+2. 找到有 inject_x86.exe 的行。有两行就两行都改。
+3. 在 chusanApp.exe 前面加上 -k wallbind.dll。
+4. 保存。
+
+原来可能是：
+
+inject_x86.exe -d -k chusanhook.dll -k duolinguo.dll chusanApp.exe
+
+改成：
+
+inject_x86.exe -d -k chusanhook.dll -k duolinguo.dll -k wallbind.dll chusanApp.exe
+
+如果那一行写的是 hook.dll，而不是 duolinguo.dll，同样加上 -k wallbind.dll：
+
+inject_x86.exe -d -k chusanhook.dll -k hook.dll -k wallbind.dll chusanApp.exe
+
+只加这一段，其他文字不要改。
+然后用 start.bat 启动。
+
+
+怎么算装好了
+------------
+
+打 Phylaxron，挡板是宽的。
+再打一首别的歌，挡板恢复原来的样子，并且游戏不闪退。
+
+
+不想用了
+--------
+
+把 start.bat 里的 -k wallbind.dll 删掉，保存后再开游戏。
+谱包里的挡板文件可以留着，不删也不影响其他歌。

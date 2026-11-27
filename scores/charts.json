@@ -1,0 +1,338 @@
+[
+  {
+    "id": 9588,
+    "title": "SUPERNOVA",
+    "artist": "Kyotsugyon",
+    "diff": "MASTER",
+    "level": 15.0,
+    "released": "2025-03-22",
+    "note": "初谱",
+    "jacket": "./jackets/9588.jpg",
+    "files": [
+      "music/music9588/9588_04.c2s",
+      "music/music9588/CHU_UI_Jacket_4.dds",
+      "music/music9588/Music.xml",
+      "cueFile/cueFile009588/CueFile.xml",
+      "cueFile/cueFile009588/music9588.acb",
+      "cueFile/cueFile009588/music9588.awb"
+    ]
+  },
+  {
+    "id": 9589,
+    "title": "影色舞 (Silhouette Dance)",
+    "artist": "MYGO!!!",
+    "diff": "ULTIMA",
+    "level": 14.7,
+    "released": "2025-08-15",
+    "note": "",
+    "jacket": "./jackets/9589.jpg",
+    "files": [
+      "music/music9589/Music.xml",
+      "music/music9589/SilhouetteDance.c2s",
+      "music/music9589/SilhouetteDance.dds",
+      "cueFile/cueFile009589/CueFile.xml",
+      "cueFile/cueFile009589/music9589.acb",
+      "cueFile/cueFile009589/music9589.awb",
+      "event/event01000958/Event.xml"
+    ]
+  },
+  {
+    "id": 9600,
+    "title": "Divide et impera!",
+    "artist": "BlackY a.k.a. WAiKURO survive",
+    "diff": "MASTER",
+    "level": 15.2,
+    "released": "2025-08-03",
+    "note": "四人合作",
+    "jacket": "./jackets/9600.jpg",
+    "files": [
+      "music/music9600/divide.c2s",
+      "music/music9600/divide.dds",
+      "music/music9600/Music.xml",
+      "cueFile/cueFile009600/CueFile.xml",
+      "cueFile/cueFile009600/music9600.acb",
+      "cueFile/cueFile009600/music9600.awb"
+    ]
+  },
+  {
+    "id": 9603,
+    "title": "DESTRUCTION 3,2,1",
+    "artist": "Normal1zer vs. Broken nerdz",
+    "diff": "MASTER",
+    "level": 15.2,
+    "released": "2025-07-03",
+    "note": "",
+    "jacket": "./jackets/9603.jpg",
+    "files": [
+      "music/music9603/321.c2s",
+      "music/music9603/321.dds",
+      "music/music9603/Music.xml",
+      "cueFile/cueFile009603/CueFile.xml",
+      "cueFile/cueFile009603/music9603.acb",
+      "cueFile/cueFile009603/music9603.awb"
+    ]
+  },
+  {
+    "id": 9604,
+    "title": "Re：Re",
+    "artist": "モリモリあつし vs. uma",
+    "diff": "MASTER",
+    "level": 15.1,
+    "released": "2025-07-15",
+    "note": "",
+    "jacket": "./jackets/9604.jpg",
+    "files": [
+      "music/music9604/Music.xml",
+      "music/music9604/rere.c2s",
+      "music/music9604/rere.dds",
+      "cueFile/cueFile009604/CueFile.xml",
+      "cueFile/cueFile009604/music9604.acb",
+      "cueFile/cueFile009604/music9604.awb"
+    ]
+  },
+  {
+    "id": 9605,
+    "title": "Arghena",
+    "artist": "Feryquitous vs Laur",
+    "diff": "MASTER",
+    "level": 15.3,
+    "released": "2025-09-09",
+    "note": "",
+    "jacket": "./jackets/9605.jpg",
+    "files": [
+      "music/music9605/arghena.c2s",
+      "music/music9605/arghena.dds",
+      "music/music9605/Music.xml",
+      "cueFile/cueFile009605/CueFile.xml",
+      "cueFile/cueFile009605/music9605.acb",
+      "cueFile/cueFile009605/music9605.awb",
+      "stage/stage060402/nf_custom_stage_60402.afb",
+      "stage/stage060402/Stage.xml",
+      "stage/stage060402/st_custom_stage_60402.afb"
+    ]
+  },
+  {
+    "id": 9606,
+    "title": "HELL! or HELL?",
+    "artist": "RAISE A SUILEN",
+    "diff": "MASTER",
+    "level": 15.2,
+    "released": "2025-08-19",
+    "note": "",
+    "jacket": "./jackets/9606.jpg",
+    "files": [
+      "music/music9606/hoh.c2s",
+      "music/music9606/hoh.dds",
+      "music/music9606/Music.xml",
+      "cueFile/cueFile009606/CueFile.xml",
+      "cueFile/cueFile009606/music9606.acb",
+      "cueFile/cueFile009606/music9606.awb"
+    ]
+  },
+  {
+    "id": 9617,
+    "title": "LABYRINTHOX",
+    "artist": "BlackYooh vs. siromaru",
+    "diff": "MASTER",
+    "level": 15.3,
+    "released": "2026-03-13",
+    "note": "",
+    "jacket": "./jackets/9617.jpg",
+    "files": [
+      "music/music9617/9617_03.c2s",
+      "music/music9617/CHU_UI_Jacket_9617.dds",
+      "music/music9617/Music.xml",
+      "cueFile/cueFile009617/CueFile.xml",
+      "cueFile/cueFile009617/music9617.acb",
+      "cueFile/cueFile009617/music9617.awb",
+      "stage/stage1009617/nf_custom_stage_1009617.afb",
+      "stage/stage1009617/Stage.xml",
+      "stage/stage1009617/st_custom_stage_1009617.afb"
+    ]
+  },
+  {
+    "id": 9636,
+    "title": "Wolves Standing Towards Enemies",
+    "artist": "Camellia",
+    "diff": "MASTER",
+    "level": 15.0,
+    "released": "2026-02-13",
+    "note": "",
+    "jacket": "./jackets/9636.jpg",
+    "files": [
+      "music/music9636/9636_03.c2s",
+      "music/music9636/CHU_UI_Jacket_9636.dds",
+      "music/music9636/Music.xml",
+      "cueFile/cueFile009636/CueFile.xml",
+      "cueFile/cueFile009636/music9636.acb",
+      "cueFile/cueFile009636/music9636.awb",
+      "stage/stage1009636/nf_custom_stage_1009636.afb",
+      "stage/stage1009636/Stage.xml",
+      "stage/stage1009636/st_custom_stage_1009636.afb"
+    ]
+  },
+  {
+    "id": 9641,
+    "title": "多次元宇宙融合論",
+    "artist": "TAKIO feat. つぐ",
+    "diff": "MASTER",
+    "level": 15.5,
+    "released": "2026-04-18",
+    "note": "",
+    "jacket": "./jackets/9641.jpg",
+    "files": [
+      "music/music9641/9641_03.c2s",
+      "music/music9641/CHU_UI_Jacket_9641.dds",
+      "music/music9641/Music.xml",
+      "cueFile/cueFile009641/CueFile.xml",
+      "cueFile/cueFile009641/music9641.acb",
+      "cueFile/cueFile009641/music9641.awb",
+      "stage/stage1009641/nf_custom_stage_1009641.afb",
+      "stage/stage1009641/Stage.xml",
+      "stage/stage1009641/st_custom_stage_1009641.afb"
+    ]
+  },
+  {
+    "id": 9876,
+    "title": "SUPERNOVA",
+    "artist": "Kyotsugyon",
+    "diff": "MASTER",
+    "level": 15.5,
+    "released": "2026-05-16",
+    "note": "重制",
+    "jacket": "./jackets/9876.jpg",
+    "files": [
+      "music/music9876/9876_03.c2s",
+      "music/music9876/CHU_UI_Jacket_9876.dds",
+      "music/music9876/Music.xml",
+      "cueFile/cueFile009876/CueFile.xml",
+      "cueFile/cueFile009876/music9876.acb",
+      "cueFile/cueFile009876/music9876.awb",
+      "stage/stage1009876/nf_custom_stage_1009876.afb",
+      "stage/stage1009876/Stage.xml",
+      "stage/stage1009876/st_custom_stage_1009876.afb"
+    ]
+  },
+  {
+    "id": 9966,
+    "title": "Axium Divergence",
+    "artist": "ak+q",
+    "diff": "ULTIMA",
+    "level": 15.3,
+    "released": "2026-10-12",
+    "note": "",
+    "jacket": "./jackets/9966.jpg",
+    "files": [
+      "music/music9966/9966_04.c2s",
+      "music/music9966/CHU_UI_Jacket_9966.dds",
+      "music/music9966/Music.xml",
+      "cueFile/cueFile009966/CueFile.xml",
+      "cueFile/cueFile009966/music9966.acb",
+      "cueFile/cueFile009966/music9966.awb",
+      "stage/stage1009966/nf_custom_stage_1009966.afb",
+      "stage/stage1009966/Stage.xml",
+      "stage/stage1009966/st_custom_stage_1009966.afb",
+      "event/event01009966/Event.xml"
+    ]
+  },
+  {
+    "id": 9971,
+    "title": "GIGANTO MACHINA",
+    "artist": "Supa7onyz vs. Sound piercer",
+    "diff": "MASTER",
+    "level": 15.5,
+    "released": "2026-06-07",
+    "note": "",
+    "jacket": "./jackets/9971.jpg",
+    "files": [
+      "music/music9971/9971_03.c2s",
+      "music/music9971/CHU_UI_Jacket_9971.dds",
+      "music/music9971/Music.xml",
+      "cueFile/cueFile009971/CueFile.xml",
+      "cueFile/cueFile009971/music9971.acb",
+      "cueFile/cueFile009971/music9971.awb",
+      "stage/stage1009971/nf_custom_stage_1009971.afb",
+      "stage/stage1009971/Stage.xml",
+      "stage/stage1009971/st_custom_stage_1009971.afb"
+    ]
+  },
+  {
+    "id": 9978,
+    "title": "Phylaxron",
+    "artist": "Taishi",
+    "diff": "ULTIMA",
+    "level": 15.3,
+    "released": "2026-11-08",
+    "note": "",
+    "jacket": "./jackets/9978.jpg",
+    "files": [
+      "music/music9978/9978_04.c2s",
+      "music/music9978/CHU_UI_Jacket_9978.dds",
+      "music/music9978/Music.xml",
+      "cueFile/cueFile009978/CueFile.xml",
+      "cueFile/cueFile009978/music9978.acb",
+      "cueFile/cueFile009978/music9978.awb",
+      "stage/stage1009978/nf_custom_stage_1009978.afb",
+      "stage/stage1009978/Stage.xml",
+      "stage/stage1009978/st_custom_stage_1009978.afb",
+      "event/event01009978/Event.xml"
+    ]
+  },
+  {
+    "id": 11451,
+    "title": "WA'HT -the f*ck。！-",
+    "artist": "大狗走音。！",
+    "diff": "ULTIMA",
+    "level": 18.8,
+    "released": "2026-07-20",
+    "note": "",
+    "jacket": "./jackets/11451.jpg",
+    "files": [
+      "music/music11451/11451_04.c2s",
+      "music/music11451/CHU_UI_Jacket_11451.dds",
+      "music/music11451/Music.xml",
+      "cueFile/cueFile011451/CueFile.xml",
+      "cueFile/cueFile011451/music11451.acb",
+      "cueFile/cueFile011451/music11451.awb",
+      "event/event01011451/Event.xml"
+    ]
+  },
+  {
+    "id": 11452,
+    "title": "奶龍伝説(司鳳remix版)",
+    "artist": "d×pseek feat. 豆包",
+    "diff": "ULTIMA",
+    "level": 18.5,
+    "released": "2026-10-24",
+    "note": "",
+    "jacket": "./jackets/11452.jpg",
+    "files": [
+      "music/music11452/11452_04.c2s",
+      "music/music11452/CHU_UI_Jacket_11452.dds",
+      "music/music11452/Music.xml",
+      "cueFile/cueFile011452/CueFile.xml",
+      "cueFile/cueFile011452/music11452.acb",
+      "cueFile/cueFile011452/music11452.awb",
+      "event/event01011452/Event.xml"
+    ]
+  },
+  {
+    "id": 11453,
+    "title": "The βetaverse -First socks of  Deepseek-",
+    "artist": "光吉猛修",
+    "diff": "ULTIMA",
+    "level": 18.7,
+    "released": "2026-11-26",
+    "note": "",
+    "jacket": "./jackets/11453.jpg",
+    "files": [
+      "music/music11453/11453_04.c2s",
+      "music/music11453/CHU_UI_Jacket_11453.dds",
+      "music/music11453/Music.xml",
+      "cueFile/cueFile011453/CueFile.xml",
+      "cueFile/cueFile011453/music11453.acb",
+      "cueFile/cueFile011453/music11453.awb",
+      "event/event01011453/Event.xml"
+    ]
+  }
+]

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>个人自制谱</title>
+  <link rel="icon" href="../collect/assets/logo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./scores.css?v=3">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="top">
+    <a class="mark" href="/collect/"><img src="../collect/assets/logo.ico" alt="整理站"></a>
+    <div>
+      <strong>个人自制谱</strong>
+      <em>点一首加入打包，再一起下载</em>
+    </div>
+  </header>
+  <div class="toolbar">
+    <label class="sort-pick">排序
+      <select id="sort" aria-label="排序">
+        <option value="time">时间</option>
+        <option value="level">定数</option>
+        <option value="diff">难度</option>
+        <option value="plus">18+</option>
+      </select>
+    </label>
+    <button id="pack-all" type="button">全部打包</button>
+  </div>
+  <div id="shade"></div>
+  <main id="groups"></main>
+  <aside id="drawer" aria-label="打包列表">
+    <button id="drawer-tab" type="button">打包列表 <b id="pack-count">0</b></button>
+    <div class="drawer-panel">
+      <h2>打包列表</h2>
+      <ul id="pack-list"></ul>
+      <p id="pack-empty">还没有选。</p>
+      <button id="download" type="button" disabled>下载谱包</button>
+      <p id="pack-msg"></p>
+    </div>
+  </aside>
+  <script src="./jszip.min.js?v=1"></script>
+  <script src="./scores.js?v=5"></script>
+</body>
+</html>

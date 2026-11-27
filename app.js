@@ -3,7 +3,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 
 const menus = [
   { id: "welcome", label: "欢迎光临", character: "欢迎光临", card: 1 },
-  { id: "chart-hub", label: "自制谱工具集成站", character: "自制谱面", card: 2 },
+  { id: "chart-hub", label: "中二自制相关", character: "自制谱面", card: 2 },
   { id: "tool-sites", label: "其他工具网站收集", character: "神秘小工具", card: 3 },
   { id: "chat", label: "与睦头尬聊", character: "与睦头尬聊", card: 1 },
   { id: "about", label: "关于我", character: "私密内容", card: 2 },
@@ -15,9 +15,10 @@ const playlist = [
   { title: "哆啦A梦", cover: `${LEGACY}/歌单/哆啦A梦.jpg`, audio: `${LEGACY}/歌单/哆啦A梦.wav` },
   { title: "地狱", cover: `${LEGACY}/歌单/地狱.jpg`, audio: `${LEGACY}/歌单/地狱.wav` },
   { title: "天上掉下个若叶睦", cover: `${LEGACY}/歌单/天上掉下个若叶睦.jpg`, audio: `${LEGACY}/歌单/天上掉下个若叶睦.wav` },
+  { title: "WA'HT -the f*ck。！-", cover: "./scores/jackets/11451.jpg", audio: `${LEGACY}/歌单/WAHT.wav` },
+  { title: "奶龍伝説", cover: "./scores/jackets/11452.jpg", audio: `${LEGACY}/歌单/奶龙传说.wav` },
+  { title: "The βetaverse", cover: "./scores/jackets/11453.jpg", audio: `${LEGACY}/歌单/betaverse.wav` },
 ];
-
-const chartPack = `${LEGACY}/自制谱面/[OPT]莫Collection2026.11.9.zip`;
 
 const webTools = [
   { title: "樱花动漫", href: "https://www.yinghua3.com/" },
@@ -229,7 +230,21 @@ function listMarkup(items, className, download) {
   return `<ul class="${className}">${rows}</ul>`;
 }
 
+function mountWelcomeLive2D() {
+  const start = () => {
+    const el = $("scene-l2d");
+    if (!el) return;
+    if (typeof window.mountWelcomeLive2D === "function") {
+      void window.mountWelcomeLive2D(el);
+      return;
+    }
+    window.addEventListener("welcome-l2d-ready", () => start(), { once: true });
+  };
+  requestAnimationFrame(start);
+}
+
 function showScene(index, opts = {}) {
+  window.unmountWelcomeLive2D?.();
   const menu = menus[index];
   const changed = sceneCard.dataset.index !== String(index);
   sceneCard.dataset.index = String(index);
@@ -239,38 +254,50 @@ function showScene(index, opts = {}) {
   if (menu.id === "welcome") {
     const welcomeHit = !query.trim() || hit("欢迎光临") || hit("莫特奈利斯") || hit("个人网站") || hit("黄瓜");
     cardBody.innerHTML = welcomeHit ? `
-      <div class="welcome-poster">
-        <span class="tape" aria-hidden="true"></span>
-        <p>莫特奈利斯个人网站，用于归档个人资源，也用来容纳一些古怪但有趣的灵感实验。</p>
+      <div class="welcome-layout">
+        <div class="welcome-poster">
+          <span class="tape" aria-hidden="true"></span>
+          <p>莫特奈利斯个人网站，用于归档个人资源，也用来容纳一些古怪但有趣的灵感实验。</p>
+        </div>
+        <div class="welcome-split">
+          <div class="welcome-side">
+            <div class="toy-row">
+              <button type="button" id="slap-cuke" class="slap-cuke">
+                <img src="./assets/drawn/cuke-a.svg" alt="">
+                <span>拍黄瓜 <b id="slap-count">0</b></span>
+                <em id="slap-note">拍了不算分。</em>
+              </button>
+              <button type="button" id="slip-draw" class="slip">
+                <span class="slip-kicker">抽一张</span>
+                <span id="slip-text">纸条还叠着。</span>
+              </button>
+            </div>
+            <button type="button" id="reload-btn">显示不对就刷新</button>
+          </div>
+          <div class="welcome-l2d" id="scene-l2d" aria-label="若叶睦"></div>
+        </div>
       </div>
-      <div class="toy-row">
-        <button type="button" id="slap-cuke" class="slap-cuke">
-          <img src="./assets/drawn/cuke-a.svg" alt="">
-          <span>拍黄瓜 <b id="slap-count">0</b></span>
-          <em id="slap-note">拍了不算分。</em>
-        </button>
-        <button type="button" id="slip-draw" class="slip">
-          <span class="slip-kicker">抽一张</span>
-          <span id="slip-text">纸条还叠着。</span>
-        </button>
-      </div>
-      <button type="button" id="reload-btn">显示不对就刷新</button>
     ` : `<p class="state-note">没有「${escapeHtml(query.trim())}」。</p>`;
     bindWelcomeToys();
     $("reload-btn")?.addEventListener("click", () => location.reload());
+    if (welcomeHit) mountWelcomeLive2D();
   } else if (menu.id === "chart-hub") {
     cardBody.innerHTML = `
-      <div class="pair">
-        <a class="pair-btn" href="/collect/">
-          <img src="/collect/assets/cuke-3.svg?v=2" alt="">
-          <span>打开中二自制<br>工具收集站</span>
-        </a>
-        <a class="pair-btn pack" href="${escapeHtml(encodeURI(chartPack))}" download>
-          <b>ZIP</b>
-          <span>个人谱包</span>
-        </a>
+      <div class="scene-stack">
+        <div class="pair">
+          <a class="pair-btn" href="/collect/">
+            <img src="/collect/assets/cuke-3.svg?v=2" alt="">
+            <span>打开中二自制<br>工具收集站</span>
+          </a>
+          <a class="pair-btn" href="/scores/">
+            <b>谱</b>
+            <span>个人谱包下载站</span>
+          </a>
+        </div>
+        <div class="scene-l2d" id="scene-l2d" aria-label="若叶睦"></div>
       </div>
     `;
+    mountWelcomeLive2D();
   } else if (menu.id === "tool-sites") {
     cardBody.innerHTML = `
       ${listMarkup(webTools, "web-list", false)}
@@ -291,12 +318,16 @@ function showScene(index, opts = {}) {
   } else if (menu.id === "about") {
     const aboutHit = !query.trim() || hit("关于我") || hit("上海交通大学") || hit("bilibili") || hit("1029664784");
     cardBody.innerHTML = aboutHit ? `
-      <div class="about-sheet">
-        <p>来自上海交通大学设计学院。</p>
-        <p>关注我 → <a href="https://space.bilibili.com/500049877" target="_blank" rel="noopener noreferrer">莫特奈利斯</a></p>
-        <p>个人群：1029664784</p>
+      <div class="scene-stack">
+        <div class="about-sheet">
+          <p>来自上海交通大学设计学院。</p>
+          <p>关注我 → <a href="https://space.bilibili.com/500049877" target="_blank" rel="noopener noreferrer">莫特奈利斯</a></p>
+          <p>个人群：1029664784</p>
+        </div>
+        <div class="scene-l2d" id="scene-l2d" aria-label="若叶睦"></div>
       </div>
     ` : `<p class="state-note">没有「${escapeHtml(query.trim())}」。</p>`;
+    if (aboutHit) mountWelcomeLive2D();
   }
   if (opts.slap && changed) slapCard();
 }
@@ -387,7 +418,7 @@ function mountChat() {
 
 function syncSong() {
   const track = playlist[songIndex];
-  vinylCover.src = track.cover;
+  vinylCover.setAttribute("href", encodeURI(track.cover));
   bgAudio.src = track.audio;
   if (playing) void bgAudio.play().catch(() => {});
 }
@@ -524,7 +555,7 @@ playBtn.addEventListener("click", () => {
 $("next-btn").addEventListener("click", () => {
   songIndex = (songIndex + 1) % playlist.length;
   vinylCover.classList.remove("swap");
-  void vinylCover.offsetWidth;
+  void vinylCover.getBoundingClientRect();
   vinylCover.classList.add("swap");
   syncSong();
 });

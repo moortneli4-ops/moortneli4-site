@@ -1,0 +1,14 @@
+{
+  "name": "AMTS",
+  "releaseTag": [
+    "releaseTag/releaseTag000020/ReleaseTag.xml",
+    "releaseTag/releaseTag000099/ReleaseTag.xml"
+  ],
+  "wallSong": 9978,
+  "wall": [
+    "wallbind.dll",
+    "加宽挡板安装使用说明（可选）.txt",
+    "ddsFieldWall/ddsFieldWall9978/CHU_UI_Fieldwall_9978.dds",
+    "ddsFieldWall/ddsFieldWall9978/DDSFieldWall.xml"
+  ]
+}

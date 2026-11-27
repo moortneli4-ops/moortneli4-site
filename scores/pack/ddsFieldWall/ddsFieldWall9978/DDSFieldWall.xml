@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DDSFieldWallData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <dataName>ddsFieldWall9978</dataName>
+  <name>
+    <id>9978</id>
+    <str>Phylaxron</str>
+    <data />
+  </name>
+  <netOpenName>
+    <id>2600</id>
+    <str>v2_30 00_0</str>
+    <data />
+  </netOpenName>
+  <disableFlag>false</disableFlag>
+  <image>
+    <path>CHU_UI_Fieldwall_9978.dds</path>
+  </image>
+  <defaultHave>true</defaultHave>
+  <explainText />
+</DDSFieldWallData>

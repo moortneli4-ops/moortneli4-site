@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=26">
+  <link rel="stylesheet" href="./styles.css?v=31">
 </head>
 <body>
   <div id="paper-grain" aria-hidden="true"></div>
@@ -55,9 +55,68 @@
 
       <div class="board">
         <section class="player" aria-label="唱片">
-          <div id="turntable" class="turntable">
-            <img class="vinyl" src="./assets/drawn/vinyl.svg" alt="唱片">
-            <img id="vinyl-cover" class="vinyl-cover" src="/legacy/歌单/大耳朵睦睦.jpg" alt="">
+                    <div id="turntable" class="turntable">
+            <!-- Disc adapted from animated-title-templates/demos/vinyl (MIT, mlf631666711-cloud). -->
+            <svg class="vinyl" viewBox="590 140 1330 1230" role="img" aria-label="唱片">
+  <defs>
+    <radialGradient id="vt-disc" cx="42%" cy="36%" r="72%">
+      <stop offset="0%" stop-color="#723A21"/>
+      <stop offset="72%" stop-color="#723A21"/>
+      <stop offset="100%" stop-color="#CABC81" stop-opacity=".16"/>
+    </radialGradient>
+    <radialGradient id="vt-sheen" cx="30%" cy="22%" r="52%">
+      <stop offset="0%" stop-color="#FFE1BD" stop-opacity=".30"/>
+      <stop offset="58%" stop-color="#FFE1BD" stop-opacity=".07"/>
+      <stop offset="100%" stop-color="#FFE1BD" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="vt-disc-clip"><circle cx="1200" cy="760" r="580"/></clipPath>
+    <clipPath id="vt-label-clip"><circle cx="1200" cy="760" r="146"/></clipPath>
+  </defs>
+  <g class="vinyl-plate">
+    <circle cx="1210" cy="776" r="582" fill="#723A21" opacity=".085"/>
+    <circle cx="1200" cy="760" r="580" fill="url(#vt-disc)"/>
+    <g class="vinyl-spin">
+      <g fill="none" stroke="#FFE1BD"><circle cx="1200" cy="760" r="205.2" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="208.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="212.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="215.7" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="220.8" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="224.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="227.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="231.3" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="236.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="239.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="242.4" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="247.2" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="250.7" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="254.9" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="258.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="277.0" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="280.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="284.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="289.0" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="292.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="296.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="300.0" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="303.3" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="308.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="311.3" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="315.2" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="319.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="322.2" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="326.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="330.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="345.8" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="348.8" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="352.8" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="357.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="361.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="364.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="369.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="371.8" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="375.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="380.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="384.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="387.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="391.3" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="394.8" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="398.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="403.1" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="413.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="417.2" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="421.4" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="425.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="429.2" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="432.3" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="436.4" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="440.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="444.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="447.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="452.5" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="455.7" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="459.2" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="475.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="478.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="482.4" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="485.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="489.7" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="494.5" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="497.3" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="501.4" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="505.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="508.3" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="512.6" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="516.9" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="532.2" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="535.8" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="539.7" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="543.1" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="546.7" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="550.4" stroke-width="1.7" opacity="0.13"/><circle cx="1200" cy="760" r="554.0" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="559.0" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="561.8" stroke-width="0.9" opacity="0.062"/><circle cx="1200" cy="760" r="566.7" stroke-width="0.9" opacity="0.062"/></g>
+      <g fill="none" stroke="#CABC81"><circle cx="1200" cy="760" r="261.0" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="274.3" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="332.1" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="344.3" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="402.8" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="413.7" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="462.0" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="472.9" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="519.8" stroke-width="1.4" opacity=".20"/><circle cx="1200" cy="760" r="529.9" stroke-width="1.4" opacity=".20"/></g>
+      <g fill="none" stroke="#CABC81">
+        <line x1="1405" y1="760" x2="1766" y2="760" stroke-width="1.6" opacity=".20"/>
+        <line x1="995" y1="760" x2="634" y2="760" stroke-width="1.6" opacity=".20"/>
+      </g>
+      <g fill="none" stroke="#FFE1BD"><path d="M951.3 592.2 A300 300 0 0 1 1117.3 471.6" stroke-width="5" opacity=".10" stroke-linecap="round"/><path d="M1598.7 921.1 A430 430 0 0 1 1304.0 1177.2" stroke-width="5" opacity=".10" stroke-linecap="round"/><path d="M744.4 1002.2 A516 516 0 0 1 686.8 706.1" stroke-width="7" opacity=".10" stroke-linecap="round"/></g>
+      <g><circle cx="1279.7" cy="1206.2" r="1.71" fill="#FFE1BD" opacity="0.189"/><circle cx="979.1" cy="1181.3" r="1.76" fill="#FFE1BD" opacity="0.224"/><circle cx="1332.3" cy="956.3" r="2.41" fill="#FFE1BD" opacity="0.320"/><circle cx="972.4" cy="454.0" r="2.00" fill="#FFE1BD" opacity="0.142"/><circle cx="838.9" cy="666.2" r="1.85" fill="#FFE1BD" opacity="0.314"/><circle cx="1016.8" cy="1026.7" r="2.49" fill="#FFE1BD" opacity="0.333"/><circle cx="954.9" cy="576.3" r="1.22" fill="#FFE1BD" opacity="0.332"/><circle cx="800.3" cy="512.8" r="1.45" fill="#FFE1BD" opacity="0.218"/><circle cx="1095.0" cy="563.6" r="1.86" fill="#FFE1BD" opacity="0.251"/><circle cx="846.1" cy="351.3" r="1.88" fill="#FFE1BD" opacity="0.210"/><circle cx="755.0" cy="888.7" r="1.33" fill="#FFE1BD" opacity="0.206"/><circle cx="1438.7" cy="1194.7" r="2.33" fill="#FFE1BD" opacity="0.334"/><circle cx="1251.3" cy="1130.4" r="1.24" fill="#FFE1BD" opacity="0.190"/><circle cx="1348.2" cy="1011.2" r="1.54" fill="#FFE1BD" opacity="0.180"/><circle cx="1226.5" cy="502.1" r="1.31" fill="#FFE1BD" opacity="0.335"/><circle cx="1507.2" cy="1203.4" r="0.92" fill="#FFE1BD" opacity="0.356"/><circle cx="1206.1" cy="1091.2" r="0.86" fill="#FFE1BD" opacity="0.165"/><circle cx="1686.0" cy="580.8" r="1.37" fill="#FFE1BD" opacity="0.315"/><circle cx="1231.7" cy="362.1" r="1.16" fill="#FFE1BD" opacity="0.187"/><circle cx="1343.2" cy="1057.2" r="1.72" fill="#FFE1BD" opacity="0.191"/><circle cx="1041.3" cy="1254.6" r="2.40" fill="#FFE1BD" opacity="0.152"/><circle cx="920.8" cy="870.1" r="1.17" fill="#FFE1BD" opacity="0.221"/><circle cx="1554.9" cy="821.8" r="0.89" fill="#FFE1BD" opacity="0.211"/><circle cx="1186.8" cy="448.0" r="2.44" fill="#FFE1BD" opacity="0.338"/><circle cx="817.7" cy="1172.7" r="1.45" fill="#FFE1BD" opacity="0.143"/><circle cx="1668.1" cy="782.2" r="1.72" fill="#FFE1BD" opacity="0.334"/><circle cx="951.6" cy="904.1" r="2.22" fill="#FFE1BD" opacity="0.236"/><circle cx="1490.3" cy="921.0" r="1.09" fill="#FFE1BD" opacity="0.145"/><circle cx="814.5" cy="1079.7" r="2.10" fill="#FFE1BD" opacity="0.298"/><circle cx="1271.1" cy="317.6" r="1.47" fill="#FFE1BD" opacity="0.211"/><circle cx="1492.9" cy="876.0" r="0.96" fill="#FFE1BD" opacity="0.349"/><circle cx="1543.8" cy="401.8" r="1.15" fill="#FFE1BD" opacity="0.177"/><circle cx="969.0" cy="1048.1" r="1.68" fill="#FFE1BD" opacity="0.339"/><circle cx="1131.5" cy="514.9" r="1.75" fill="#FFE1BD" opacity="0.319"/></g>
+    </g>
+    <g clip-path="url(#vt-disc-clip)">
+      <circle cx="1050" cy="570" r="545" fill="url(#vt-sheen)"/>
+    </g>
+    <circle cx="1200" cy="760" r="577" fill="none" stroke="#CABC81" stroke-width="2.4" opacity=".5"/>
+    <path d="M632.1 819.7 A571 571 0 0 1 880.7 286.6" fill="none" stroke="#FFE1BD" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+    <circle cx="1200" cy="760" r="185" fill="#D2632D"/>
+    <g fill="none" stroke="#723A21"><circle cx="1200" cy="760" r="171" stroke-width="1.2" opacity="0.30"/><circle cx="1200" cy="760" r="159" stroke-width="1.2" opacity="0.24"/><circle cx="1200" cy="760" r="145" stroke-width="1.2" opacity="0.18"/><line x1="1332.2" y1="803.0" x2="1358.8" y2="811.6" stroke-width="2" opacity=".26"/><line x1="1157.0" y1="892.2" x2="1148.4" y2="918.8" stroke-width="2" opacity=".26"/><line x1="1067.8" y1="717.0" x2="1041.2" y2="708.4" stroke-width="2" opacity=".26"/><line x1="1243.0" y1="627.8" x2="1251.6" y2="601.2" stroke-width="2" opacity=".26"/></g>
+    <circle cx="1200" cy="760" r="149" fill="none" stroke="#723A21" stroke-width="1.6" opacity=".38"/>
+    <g clip-path="url(#vt-label-clip)">
+      <g class="vinyl-spin">
+        <image id="vinyl-cover" class="vinyl-cover" href="/legacy/歌单/大耳朵睦睦.jpg" x="1054" y="614" width="292" height="292" preserveAspectRatio="xMidYMid slice"/>
+      </g>
+    </g>
+    <circle cx="1200" cy="760" r="138" fill="none" stroke="#723A21" stroke-width="1.2" opacity=".3"/>
+    <circle cx="1200" cy="760" r="11" fill="#EEE6D2"/>
+  </g>
+  <g class="vinyl-arm" fill="none" stroke-linecap="round">
+    <line x1="1846" y1="232" x2="1446" y2="559" stroke="#723A21" stroke-width="15" opacity=".2"/>
+    <line x1="1846" y1="232" x2="1862" y2="218" stroke="#723A21" stroke-width="30"/>
+    <line x1="1846" y1="232" x2="1446" y2="559" stroke="#9DC1E3" stroke-width="11"/>
+    <line x1="1846" y1="229" x2="1446" y2="556" stroke="#FFE1BD" stroke-width="3" opacity=".55"/>
+    <circle cx="1881.6" cy="202.9" r="19" fill="#723A21" stroke="none"/>
+    <circle cx="1881.6" cy="202.9" r="19" stroke="#CABC81" stroke-width="1.6" opacity=".5"/>
+    <circle cx="1846" cy="232" r="23" fill="#723A21" stroke="none"/>
+    <circle cx="1846" cy="232" r="8" fill="#CABC81" stroke="none"/>
+    <g transform="rotate(140.73 1446 559)">
+      <rect x="1420" y="546" width="50" height="26" rx="5" fill="#723A21" stroke="none"/>
+      <rect x="1426" y="550" width="30" height="5" fill="#FFE1BD" opacity=".18" stroke="none"/>
+      <circle cx="1448" cy="568" r="4.4" fill="#9DC1E3" stroke="none"/>
+    </g>
+  </g>
+</svg>
             <button id="cover-hotspot" type="button" aria-label="唱片交互"></button>
           </div>
           <div id="tt-controls" class="player-controls">
@@ -102,6 +161,11 @@
       </div>
     </div>
   </div>
-  <script src="./app.js?v=24"></script>
+  <script src="./assets/l2d/vendor/live2dcubismcore.min.js"></script>
+  <script src="./app.js?v=30"></script>
+  <script type="importmap">
+    { "imports": { "pixi.js": "./assets/l2d/vendor/pixi-esm.js" } }
+  </script>
+  <script type="module" src="./assets/l2d/mount.js?v=5"></script>
 </body>
 </html>

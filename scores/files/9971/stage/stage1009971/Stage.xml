@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<StageData>
+  <dataName>stage1009971</dataName>
+  <netOpenName>
+    <id>2600</id>
+    <str>v2_30 00_0</str>
+    <data />
+  </netOpenName>
+  <releaseTagName>
+    <id>-1</id>
+    <str>Invalid</str>
+    <data />
+  </releaseTagName>
+  <name>
+    <id>1009971</id>
+    <str>custom_stage_1009971</str>
+    <data />
+  </name>
+  <notesFieldLine>
+    <id>0</id>
+    <str>Orange</str>
+    <data>オレンジ</data>
+  </notesFieldLine>
+  <notesFieldFile>
+    <path>nf_custom_stage_1009971.afb</path>
+  </notesFieldFile>
+  <baseFile>
+    <path>st_custom_stage_1009971.afb</path>
+  </baseFile>
+  <objectFile>
+    <path />
+  </objectFile>
+</StageData>

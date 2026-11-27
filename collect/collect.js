@@ -53,6 +53,16 @@ const tools = [
     state: "可打开",
   },
   {
+    id: "my-charts",
+    name: "个人自制谱下载",
+    cat: "自制相关",
+    blurb: "按歌看定数、难度和曲绘，点进右侧打包列表再一起下载。",
+    host: "moortneli4.top/scores",
+    href: "/scores/",
+    icon: MARK,
+    state: "可打开",
+  },
+  {
     id: "pgko",
     name: "自制谱文件库",
     cat: "自制相关",

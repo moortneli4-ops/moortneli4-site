@@ -4,7 +4,7 @@ const path = require("path");
 const { URL } = require("url");
 
 const ROOT_DIR = __dirname;
-const LEGACY_DIR = path.resolve(__dirname, "..", "moortneli4-site");
+const LEGACY_DIR = path.join(__dirname, "legacy");
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT || 8788);
 
