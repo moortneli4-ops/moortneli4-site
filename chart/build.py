@@ -1,4 +1,4 @@
-"""Build /scores/ jackets and downloadable chart folders from the AMTS option pack."""
+"""Build /chart/ jackets and downloadable chart folders from the AMTS option pack."""
 import json
 import re
 import shutil

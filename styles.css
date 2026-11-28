@@ -898,6 +898,14 @@ body:not(.awake) .character-stage { opacity: 0; }
 }
 .scene-stack .pair,
 .scene-stack .about-sheet { flex: none; }
+a.welcome-l2d,
+a.scene-l2d,
+a.welcome-l2d canvas,
+a.scene-l2d canvas {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
 .scene-l2d {
   position: relative;
   flex: 1;

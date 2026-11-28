@@ -73,6 +73,10 @@ async function mount(el) {
     }
     app = next;
     el.appendChild(app.canvas);
+    app.canvas.addEventListener("pointerup", (event) => {
+      if (event.button !== 0) return;
+      window.location.assign("/l2d/");
+    });
     const loaded = await Live2DModel.from(MODEL_URL);
     if (ticket !== generation || !el.isConnected) {
       loaded.destroy({ children: true });

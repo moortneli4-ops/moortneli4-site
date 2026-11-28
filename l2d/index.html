@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>巨钢的大门</title>
+  <link rel="icon" href="../assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./stage.css?v=2">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="room" id="room">
+    <header class="top">
+      <a class="back" href="/">回个人站</a>
+      <div class="title">
+        <p class="kicker">若叶睦</p>
+        <h1>巨钢的大门</h1>
+      </div>
+      <p id="now" class="now" aria-live="polite">正在上台</p>
+    </header>
+    <div id="stage" class="stage" aria-label="巨钢的大门">
+      <p id="stage-note" class="stage-note">正在上台</p>
+      <button id="retry" class="retry" type="button" hidden>再试一次</button>
+    </div>
+    <aside class="sheet" id="sheet" aria-label="动作和设置">
+      <div class="sheet-head">
+        <h2>动作</h2>
+        <button id="fold" type="button" aria-expanded="true" aria-controls="sheet-body">收起</button>
+      </div>
+      <div id="sheet-body">
+        <div id="cues" class="cues" role="group" aria-label="动作"></div>
+        <div class="settings">
+          <label class="switch"><input id="loop" type="checkbox"> 循环</label>
+          <label class="slider">速度
+            <input id="speed" type="range" min="0.4" max="2" step="0.1" value="1" aria-valuemin="0.4" aria-valuemax="2" aria-valuenow="1">
+            <output id="speed-out" for="speed">1.0</output>
+          </label>
+          <label class="switch"><input id="mouse" type="checkbox" checked> 鼠标跟着</label>
+          <label class="slider">强度
+            <input id="strength" type="range" min="0" max="1.4" step="0.1" value="0.8" aria-valuemin="0" aria-valuemax="1.4" aria-valuenow="0.8">
+            <output id="strength-out" for="strength">0.8</output>
+          </label>
+          <label class="switch"><input id="breath" type="checkbox" checked> 呼吸</label>
+          <label class="switch"><input id="physics" type="checkbox" checked> 物理</label>
+          <div class="paints" role="group" aria-label="背景">
+            <span>背景</span>
+            <button type="button" data-paint="paper" class="is-on" aria-pressed="true">纸</button>
+            <button type="button" data-paint="moss" aria-pressed="false">青</button>
+            <button type="button" data-paint="night" aria-pressed="false">夜</button>
+          </div>
+          <button id="stop" class="stop" type="button">停下</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <script src="../assets/l2d/vendor/live2dcubismcore.min.js"></script>
+  <script type="importmap">
+    { "imports": { "pixi.js": "../assets/l2d/vendor/pixi-esm.js" } }
+  </script>
+  <script type="module" src="./stage.js?v=7"></script>
+</body>
+</html>

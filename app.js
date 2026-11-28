@@ -15,9 +15,9 @@ const playlist = [
   { title: "哆啦A梦", cover: `${LEGACY}/歌单/哆啦A梦.jpg`, audio: `${LEGACY}/歌单/哆啦A梦.wav` },
   { title: "地狱", cover: `${LEGACY}/歌单/地狱.jpg`, audio: `${LEGACY}/歌单/地狱.wav` },
   { title: "天上掉下个若叶睦", cover: `${LEGACY}/歌单/天上掉下个若叶睦.jpg`, audio: `${LEGACY}/歌单/天上掉下个若叶睦.wav` },
-  { title: "WA'HT -the f*ck。！-", cover: "./scores/jackets/11451.jpg", audio: `${LEGACY}/歌单/WAHT.wav` },
-  { title: "奶龍伝説", cover: "./scores/jackets/11452.jpg", audio: `${LEGACY}/歌单/奶龙传说.wav` },
-  { title: "The βetaverse", cover: "./scores/jackets/11453.jpg", audio: `${LEGACY}/歌单/betaverse.wav` },
+  { title: "WA'HT -the f*ck。！-", cover: "./chart/jackets/11451.jpg", audio: `${LEGACY}/歌单/WAHT.wav` },
+  { title: "奶龍伝説", cover: "./chart/jackets/11452.jpg", audio: `${LEGACY}/歌单/奶龙传说.wav` },
+  { title: "The βetaverse", cover: "./chart/jackets/11453.jpg", audio: `${LEGACY}/歌单/betaverse.wav` },
 ];
 
 const webTools = [
@@ -274,7 +274,7 @@ function showScene(index, opts = {}) {
             </div>
             <button type="button" id="reload-btn">显示不对就刷新</button>
           </div>
-          <div class="welcome-l2d" id="scene-l2d" aria-label="若叶睦"></div>
+          <a class="welcome-l2d" id="scene-l2d" href="/l2d/" aria-label="巨钢的大门"></a>
         </div>
       </div>
     ` : `<p class="state-note">没有「${escapeHtml(query.trim())}」。</p>`;
@@ -289,12 +289,12 @@ function showScene(index, opts = {}) {
             <img src="/collect/assets/cuke-3.svg?v=2" alt="">
             <span>打开中二自制<br>工具收集站</span>
           </a>
-          <a class="pair-btn" href="/scores/">
+          <a class="pair-btn" href="/chart/">
             <b>谱</b>
             <span>个人谱包下载站</span>
           </a>
         </div>
-        <div class="scene-l2d" id="scene-l2d" aria-label="若叶睦"></div>
+        <a class="scene-l2d" id="scene-l2d" href="/l2d/" aria-label="巨钢的大门"></a>
       </div>
     `;
     mountWelcomeLive2D();
@@ -324,7 +324,7 @@ function showScene(index, opts = {}) {
           <p>关注我 → <a href="https://space.bilibili.com/500049877" target="_blank" rel="noopener noreferrer">莫特奈利斯</a></p>
           <p>个人群：1029664784</p>
         </div>
-        <div class="scene-l2d" id="scene-l2d" aria-label="若叶睦"></div>
+        <a class="scene-l2d" id="scene-l2d" href="/l2d/" aria-label="巨钢的大门"></a>
       </div>
     ` : `<p class="state-note">没有「${escapeHtml(query.trim())}」。</p>`;
     if (aboutHit) mountWelcomeLive2D();
